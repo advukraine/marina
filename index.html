@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>&#9825;</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  canvas {
+    display: block;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(function () {
+  'use strict';
+
+  var canvas = document.getElementById('c');
+  var ctx = canvas.getContext('2d', { alpha: false });
+  var measure = document.createElement('canvas').getContext('2d');
+
+  var W = 0, H = 0, DPR = 1;
+  var scale = 1, cx = 0, cy = 0;
+
+  var WORDS = ['love you', 'LOVE YOU', 'Love You', 'love you', 'Love you', 'LOVE you'];
+  var COLORS = ['#4da6ff', '#7fd4ff', '#bde7ff'];
+
+  var ASSEMBLE_MS = 2500;      // сборка сердца
+  var NAME_START_MS = 6000;    // появление надписи
+  var NAME_FADE_MS = 2200;
+  var BEAT_MS = 1000;          // ~60 ударов в минуту
+  var NAME = 'Марина';
+
+  var startTime = 0;
+  var lastFrame = 0;
+  var particles = [];
+  var escapeTimer = 0;
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function pick(arr) { return arr[(Math.random() * arr.length) | 0]; }
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+  function monoFont(size) {
+    return size.toFixed(1) + 'px ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace';
+  }
+
+  /* ---------- форма сердца (параметрическое уравнение) ---------- */
+  // x = 16 sin^3 t ; y = 13 cos t - 5 cos 2t - 2 cos 3t - cos 4t
+  function heartPoint(t) {
+    var s = Math.sin(t);
+    return {
+      x: 16 * s * s * s,
+      y: 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)
+    };
+  }
+
+  // реальные границы фигуры считаем численно (y: примерно -17 .. 11.8)
+  var HEART_MID_Y = 0, HEART_SPAN_Y = 29, HEART_SPAN_X = 32;
+  (function () {
+    var minY = Infinity, maxY = -Infinity, maxX = 0;
+    for (var i = 0; i <= 2000; i++) {
+      var q = heartPoint((i / 2000) * Math.PI * 2);
+      if (q.y < minY) minY = q.y;
+      if (q.y > maxY) maxY = q.y;
+      if (Math.abs(q.x) > maxX) maxX = Math.abs(q.x);
+    }
+    HEART_MID_Y = (minY + maxY) / 2;
+    HEART_SPAN_Y = maxY - minY;
+    HEART_SPAN_X = maxX * 2;
+  })();
+
+  // равномерное распределение по длине контура (иначе точки сбиваются в комки)
+  var ARC = (function () {
+    var N = 2000, pts = [], len = [0], total = 0, prev = heartPoint(0);
+    for (var i = 0; i <= N; i++) {
+      var t = (i / N) * Math.PI * 2;
+      var q = heartPoint(t);
+      total += Math.hypot(q.x - prev.x, q.y - prev.y);
+      pts.push(t); len.push(total);
+      prev = q;
+    }
+    return { t: pts, len: len, total: total };
+  })();
+
+  function tAtArc(u) { // u: 0..1 доля длины контура
+    var target = u * ARC.total, lo = 0, hi = ARC.t.length - 1;
+    while (lo < hi) {
+      var mid = (lo + hi) >> 1;
+      if (ARC.len[mid] < target) lo = mid + 1; else hi = mid;
+    }
+    return ARC.t[lo];
+  }
+
+  function particleCount() {
+    var small = Math.min(window.innerWidth, window.innerHeight) < 600 ||
+                Math.max(window.innerWidth, window.innerHeight) < 900;
+    return small ? 210 : 280;
+  }
+
+  function buildParticles() {
+    var n = particleCount();
+    var contour = Math.round(n * 0.68);
+    var list = [];
+
+    for (var i = 0; i < n; i++) {
+      var t = (i < contour)
+        ? tAtArc((i + rand(-0.30, 0.30)) / contour)
+        : tAtArc(Math.random());
+
+      var p = heartPoint(t);
+      var hx = p.x, hy = p.y;
+      var inside = i >= contour;
+      var size = inside ? rand(10, 18) : rand(8, 13);
+
+      if (inside) {
+        // немного внутри контура — сжатие к центру фигуры
+        var k = 0.22 + Math.sqrt(Math.random()) * 0.60;
+        hx = p.x * k;
+        hy = (p.y - HEART_MID_Y) * k + HEART_MID_Y;
+      }
+      list.push({
+        hx: hx,
+        hy: hy,
+        text: pick(WORDS),
+        size: size,
+        color: pick(COLORS),
+        alpha: inside ? rand(0.3, 0.72) : rand(0.55, 1.0),
+        inside: inside,
+        // мерцание и дрожание
+        twPhase: rand(0, Math.PI * 2),
+        twSpeed: rand(0.6, 2.0),
+        jxPhase: rand(0, Math.PI * 2),
+        jyPhase: rand(0, Math.PI * 2),
+        jxSpeed: rand(0.5, 1.5),
+        jySpeed: rand(0.5, 1.5),
+        jAmp: rand(0.6, 2.2),
+        // состояние: fly -> settled -> escape -> fly
+        state: 'fly',
+        t0: 0,
+        dur: ASSEMBLE_MS,
+        delay: Math.random() * 550,
+        sx: 0, sy: 0,      // точка старта
+        ex: 0, ey: 0,      // текущая позиция при отлёте
+        evx: 0, evy: 0,
+        efade: 1,
+        x: 0, y: 0,
+        sprite: null, sw: 0, sh: 0
+      });
+      spawnFrom(list[i]);
+    }
+    particles = list;
+  }
+
+  function spawnFrom(p) {
+    p.sx = rand(-0.1, 1.1) * W;
+    p.sy = rand(-0.1, 1.1) * H;
+  }
+
+  /* ---------- спрайты: текст со свечением рисуется один раз ---------- */
+  function makeSprite(p) {
+    var font = monoFont(p.size);
+    measure.font = font;
+    var tw = Math.max(1, measure.measureText(p.text).width);
+    var blur = p.size * 0.85;
+    var pad = Math.ceil(blur * 1.8 + 4);
+
+    var cw = Math.ceil(tw) + pad * 2;
+    var ch = Math.ceil(p.size * 1.7) + pad * 2;
+
+    var off = document.createElement('canvas');
+    off.width = Math.max(1, Math.ceil(cw * DPR));
+    off.height = Math.max(1, Math.ceil(ch * DPR));
+    var g = off.getContext('2d');
+    g.scale(DPR, DPR);
+    g.font = font;
+    g.textAlign = 'left';
+    g.textBaseline = 'middle';
+    g.fillStyle = p.color;
+    g.shadowColor = p.color;
+    g.shadowBlur = blur;
+    g.fillText(p.text, pad, ch / 2);
+    g.shadowBlur = blur * 0.5;
+    g.fillText(p.text, pad, ch / 2);
+
+    p.sprite = off;
+    p.sw = cw;
+    p.sh = ch;
+  }
+
+  function buildSprites() {
+    for (var i = 0; i < particles.length; i++) makeSprite(particles[i]);
+  }
+
+  /* ---------- размеры / ретина ---------- */
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = Math.max(1, Math.round(W * DPR));
+    canvas.height = Math.max(1, Math.round(H * DPR));
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    // сердце: ширина 32 ед., высота 22 ед.
+    // запас по краям под ширину самих надписей
+    scale = Math.min((W * 0.96 - 72) / HEART_SPAN_X, (H * 0.80 - 60) / HEART_SPAN_Y);
+    scale = Math.max(scale, 3);
+    cx = W / 2;
+    cy = H / 2;
+  }
+
+  function heartToScreen(p, k, out) {
+    out.x = cx + p.hx * scale * k;
+    out.y = cy - (p.hy - HEART_MID_Y) * scale * k;
+  }
+
+  /* ---------- биение сердца ~60 bpm ---------- */
+  function beat(phase) {
+    var a = Math.exp(-Math.pow((phase - 0.13) / 0.085, 2));
+    var b = 0.55 * Math.exp(-Math.pow((phase - 0.35) / 0.10, 2));
+    return Math.min(1, a + b);
+  }
+
+  /* ---------- надпись «Марина» ---------- */
+  var nameSprite = null, nameW = 0, nameH = 0;
+
+  function buildNameSprite() {
+    var size = Math.max(28, Math.min(Math.min(W, H) * 0.125, 96));
+    var font = function (px) {
+      return '600 ' + px.toFixed(1) + 'px "Helvetica Neue", Helvetica, Arial, sans-serif';
+    };
+    // вписываем имя внутрь сердца
+    measure.font = font(size);
+    var maxW = Math.min(W * 0.62, HEART_SPAN_X * scale * 0.60);
+    var tw = measure.measureText(NAME).width;
+    if (tw > maxW) { size *= maxW / tw; measure.font = font(size); tw = measure.measureText(NAME).width; }
+
+    var blur = size * 0.75;
+    var pad = Math.ceil(blur * 2.2);
+    var cw = Math.ceil(tw) + pad * 2;
+    var ch = Math.ceil(size * 1.6) + pad * 2;
+
+    var off = document.createElement('canvas');
+    off.width = Math.max(1, Math.ceil(cw * DPR));
+    off.height = Math.max(1, Math.ceil(ch * DPR));
+    var g = off.getContext('2d');
+    g.scale(DPR, DPR);
+    g.font = font(size);
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+
+    // мягкое свечение несколькими проходами
+    g.shadowColor = '#4da6ff';
+    g.shadowBlur = blur;
+    g.fillStyle = '#7fd4ff';
+    g.fillText(NAME, cw / 2, ch / 2);
+    g.shadowColor = '#7fd4ff';
+    g.shadowBlur = blur * 0.45;
+    g.fillText(NAME, cw / 2, ch / 2);
+    g.shadowBlur = blur * 0.2;
+    g.fillStyle = '#eaf7ff';
+    g.fillText(NAME, cw / 2, ch / 2);
+
+    nameSprite = off;
+    nameW = cw;
+    nameH = ch;
+    nameSize = size;
+  }
+
+  var nameSize = 40;
+
+  function drawName(now) {
+    var age = now - NAME_START_MS;
+    if (age <= 0) return;
+    if (!nameSprite) buildNameSprite();
+
+    var k = Math.min(1, age / NAME_FADE_MS);
+    var e = 1 - Math.pow(1 - k, 3);
+    var breathe = 1 + 0.015 * Math.sin(now / 900);
+    var sc = (0.86 + 0.14 * e) * breathe;
+    var ny = cy - scale * 0.8;
+    var size = nameSize;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-over';
+
+    // мягко притеняем надписи под именем, чтобы оно читалось
+    var rg = ctx.createRadialGradient(cx, ny, 0, cx, ny, size * 2.6);
+    rg.addColorStop(0, 'rgba(0,0,0,' + (0.62 * e).toFixed(3) + ')');
+    rg.addColorStop(0.55, 'rgba(0,0,0,' + (0.38 * e).toFixed(3) + ')');
+    rg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = rg;
+    ctx.fillRect(cx - size * 2.8, ny - size * 2.8, size * 5.6, size * 5.6);
+
+    ctx.globalAlpha = e;
+    ctx.translate(cx, ny);
+    ctx.scale(sc, sc);
+    ctx.drawImage(nameSprite, -nameW / 2, -nameH / 2, nameW, nameH);
+    ctx.restore();
+  }
+
+  /* ---------- отрыв надписей и возврат новых ---------- */
+  function releaseOne(now) {
+    var tries = 12;
+    while (tries--) {
+      var p = particles[(Math.random() * particles.length) | 0];
+      if (p.state === 'settled') {
+        p.state = 'escape';
+        p.ex = p.x;
+        p.ey = p.y;
+        p.evx = rand(-14, 14);
+        p.evy = rand(-34, -16);
+        p.efade = 1;
+        return;
+      }
+    }
+  }
+
+  var tmp = { x: 0, y: 0 };
+
+  function frame(ts) {
+    if (!startTime) { startTime = ts; lastFrame = ts; }
+    var dt = Math.min(64, ts - lastFrame);
+    lastFrame = ts;
+    var now = ts - startTime;
+    var sec = now / 1000;
+
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+
+    var assembled = now > ASSEMBLE_MS * 0.9;
+    var pulse = assembled ? 1 + 0.08 * beat(((now - ASSEMBLE_MS * 0.9) % BEAT_MS) / BEAT_MS) : 1;
+
+    // периодический отрыв надписей
+    if (now > ASSEMBLE_MS) {
+      escapeTimer -= dt;
+      if (escapeTimer <= 0) {
+        escapeTimer = rand(280, 620);
+        releaseOne(now);
+      }
+    }
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      heartToScreen(p, pulse, tmp);
+
+      var jx = Math.sin(sec * p.jxSpeed + p.jxPhase) * p.jAmp;
+      var jy = Math.cos(sec * p.jySpeed + p.jyPhase) * p.jAmp;
+      var a = p.alpha * (0.68 + 0.32 * Math.sin(sec * p.twSpeed + p.twPhase));
+
+      if (p.state === 'fly') {
+        var e = (now - p.t0 - p.delay) / p.dur;
+        if (e <= 0) {
+          p.x = p.sx; p.y = p.sy;
+          a *= 0.25;
+        } else if (e >= 1) {
+          p.state = 'settled';
+          p.x = tmp.x + jx;
+          p.y = tmp.y + jy;
+        } else {
+          var k = easeInOutCubic(e);
+          p.x = p.sx + (tmp.x + jx - p.sx) * k;
+          p.y = p.sy + (tmp.y + jy - p.sy) * k;
+          a *= 0.25 + 0.75 * k;
+        }
+      } else if (p.state === 'settled') {
+        p.x = tmp.x + jx;
+        p.y = tmp.y + jy;
+      } else { // escape
+        p.ex += p.evx * dt / 1000;
+        p.ey += p.evy * dt / 1000;
+        p.evy -= 6 * dt / 1000;
+        p.efade -= dt / 2400;
+        p.x = p.ex;
+        p.y = p.ey;
+        a *= Math.max(0, p.efade);
+        if (p.efade <= 0) {
+          // на её место приходит новая надпись
+          p.text = pick(WORDS);
+          p.color = pick(COLORS);
+          p.size = p.inside ? rand(10, 18) : rand(8, 13);
+          p.alpha = p.inside ? rand(0.3, 0.72) : rand(0.55, 1.0);
+          makeSprite(p);
+          spawnFrom(p);
+          p.state = 'fly';
+          p.t0 = now;
+          p.delay = 0;
+          p.dur = rand(1400, 2200);
+          continue;
+        }
+      }
+
+      if (a <= 0.01 || !p.sprite) continue;
+      ctx.globalAlpha = Math.min(1, a * 0.88);
+      ctx.drawImage(p.sprite, p.x - p.sw / 2, p.y - p.sh / 2, p.sw, p.sh);
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    drawName(now);
+
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- запуск ---------- */
+  var resizeRaf = 0;
+  function onResize() {
+    if (resizeRaf) cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(function () {
+      resizeRaf = 0;
+      var prevDpr = DPR;
+      resize();
+      nameSprite = null;
+      if (DPR !== prevDpr) buildSprites();
+    });
+  }
+
+  resize();
+  buildParticles();
+  buildSprites();
+
+  window.addEventListener('resize', onResize, { passive: true });
+  window.addEventListener('orientationchange', onResize, { passive: true });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) lastFrame = performance.now();
+  });
+
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
