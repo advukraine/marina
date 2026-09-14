@@ -30,6 +30,7 @@ const translations = {
     nav_services: 'Usługi',
     nav_gallery: 'Galeria',
     nav_pricing: 'Cennik',
+    nav_reviews: 'Opinie',
     nav_contact: 'Kontakt',
 
     hero_eyebrow: 'Siechnice',
@@ -60,6 +61,9 @@ const translations = {
     alt_work: 'Praca studia',
     alt_interior: 'Wnętrze salonu',
     alt_master: 'Vitaliia przy pracy',
+
+    reviews_title: 'Opinie',
+    reviews_lead: 'Opinie klientek studia.',
 
     pricing_title: 'Cennik',
     pricing_lead: 'Ceny w złotych. Pakiety zabiegów są tańsze.',
@@ -117,6 +121,7 @@ const translations = {
     l_posladki: 'pośladki',
     l_brzuch: 'brzuch cały',
     l_klatka: 'klatka piersiowa',
+    l_plecy: 'plecy',
     l_twarz: 'cała twarz',
     l_wasik: 'wąsik / broda / linia brzucha / bródka / baczki',
     l_pak1: 'bikini głębokie + pachy + całe nogi',
@@ -154,6 +159,7 @@ const translations = {
     nav_services: 'Послуги',
     nav_gallery: 'Галерея',
     nav_pricing: 'Ціни',
+    nav_reviews: 'Відгуки',
     nav_contact: 'Контакти',
 
     hero_eyebrow: 'Сехниці',
@@ -184,6 +190,9 @@ const translations = {
     alt_work: 'Робота студії',
     alt_interior: 'Інтер’єр салону',
     alt_master: 'Віталія за роботою',
+
+    reviews_title: 'Відгуки',
+    reviews_lead: 'Відгуки клієнток студії.',
 
     pricing_title: 'Ціни',
     pricing_lead: 'Ціни у злотих. Пакети процедур — дешевше.',
@@ -241,6 +250,7 @@ const translations = {
     l_posladki: 'сідниці',
     l_brzuch: 'живіт повністю',
     l_klatka: 'грудна клітка',
+    l_plecy: 'спина',
     l_twarz: 'обличчя повністю',
     l_wasik: 'вусики / борода / лінія живота / підборіддя / бакенбарди',
     l_pak1: 'глибоке бікіні + пахви + ноги повністю',
