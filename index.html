@@ -46,7 +46,7 @@
       <div class="hero-text">
         <p class="eyebrow" data-i18n="hero_eyebrow">Siechnice</p>
         <h1 class="hero-title">Vitaliia <span>beauty studio</span></h1>
-        <p class="hero-sub" data-i18n="hero_sub">Manicure, pedicure, brwi i rzęsy, makijaż permanentny oraz masaż endosferyczny w Siechnicach.</p>
+        <p class="hero-sub" data-i18n="hero_sub">Manicure, pedicure, brwi i rzęsy, makijaż permanentny, depilacja laserowa i masaż endosferyczny w Siechnicach.</p>
         <div class="hero-actions">
           <a class="btn btn-solid" href="tel:+48787811154" data-i18n="btn_call">Zadzwoń</a>
           <a class="btn btn-ghost" href="https://instagram.com/vitaliia_beauty_studio" target="_blank" rel="noopener">Instagram</a>
@@ -82,6 +82,11 @@
           <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M31 8l9 9-20 20-9 3 3-9Z"/><path d="M28 11l9 9"/><path d="M10 42h28"/></svg>
           <span class="service-name" data-i18n="cat_pmu">Makijaż permanentny</span>
           <span class="service-meta" data-i18n="cat_pmu_meta">600 zł</span>
+        </a></li>
+        <li><a class="service-card" href="#cennik-laser">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M18 8h12v10l-6 7-6-7Z"/><path d="M18 14h12"/><path d="M24 29v11"/><path d="M17 31l-2 7"/><path d="M31 31l2 7"/></svg>
+          <span class="service-name" data-i18n="cat_laser">Depilacja laserowa</span>
+          <span class="service-meta" data-i18n="cat_laser_meta">od 50 zł</span>
         </a></li>
         <li><a class="service-card" href="#cennik-masaz">
           <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="15" cy="24" r="8"/><circle cx="33" cy="24" r="8"/><path d="M15 12v-4M33 12v-4M15 40v-4M33 40v-4"/></svg>
@@ -162,11 +167,40 @@
         <div class="price-card" id="cennik-pmu">
           <h3 class="price-card-title" data-i18n="cat_pmu">Makijaż permanentny</h3>
           <dl class="price-list">
-            <div class="price-row"><dt data-i18n="pm_brwi">brwi</dt><dd>600 zł</dd></div>
-            <div class="price-row"><dt data-i18n="pm_usta">usta</dt><dd>600 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_usta_ombre">usta — metoda ombre</dt><dd>600 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_usta_dop">usta — dopigmentowanie</dt><dd>250 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_brwi_ombre">brwi — metoda ombre</dt><dd>600 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_brwi_dop">brwi — dopigmentowanie</dt><dd>250 zł</dd></div>
             <div class="price-row"><dt data-i18n="pm_kreska">kreska w linii rzęs</dt><dd>600 zł</dd></div>
-            <div class="price-row"><dt data-i18n="pm_kor3">korekta do 3 m</dt><dd>250 zł</dd></div>
-            <div class="price-row"><dt data-i18n="pm_kor12">korekta do 1 roku</dt><dd>400 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_kreska_dop">kreska w linii rzęs — dopigmentowanie</dt><dd>250 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_usuwanie">usuwanie removerem</dt><dd>120 zł</dd></div>
+          </dl>
+          <p class="price-note" data-i18n="pm_konsultacja">Konsultacja jest darmowa.</p>
+        </div>
+
+        <!-- DEPILACJA LASEROWA -->
+        <div class="price-card" id="cennik-laser">
+          <h3 class="price-card-title" data-i18n="cat_laser">Depilacja laserowa</h3>
+          <dl class="price-list">
+            <div class="price-row"><dt data-i18n="l_pachy">pachy</dt><dd>100 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_rece">całe ręce</dt><dd>160 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_lydki">łydki</dt><dd>140 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_przedramiona">przedramiona</dt><dd>100 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_uda">uda</dt><dd>140 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_nogi">całe nogi</dt><dd>240 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_bikini_gl">bikini głębokie</dt><dd>160 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_bikini_kl">bikini klasyczne</dt><dd>140 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_posladki">pośladki</dt><dd>140 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_brzuch">brzuch cały</dt><dd>140 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_klatka">klatka piersiowa</dt><dd>140 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_twarz">cała twarz</dt><dd>140 zł</dd></div>
+            <div class="price-row"><dt data-i18n="l_wasik">wąsik / broda / linia brzucha / bródka / baczki</dt><dd>50 zł</dd></div>
+            <div class="price-row is-package"><dt data-i18n="l_pak1">bikini głębokie + pachy + całe nogi</dt><dd>360 zł</dd></div>
+            <div class="price-row is-package"><dt data-i18n="l_pak2">bikini głębokie + pachy</dt><dd>230 zł</dd></div>
+            <div class="price-row is-package"><dt data-i18n="l_pak3">bikini głębokie + pachy + łydki</dt><dd>290 zł</dd></div>
+            <div class="price-row is-package"><dt data-i18n="l_pak4">całe nogi + pachy</dt><dd>290 zł</dd></div>
+            <div class="price-row is-package"><dt data-i18n="l_pak5">bikini głębokie + całe nogi</dt><dd>330 zł</dd></div>
+            <div class="price-row is-package"><dt data-i18n="l_pak6">twarz + całe ciało</dt><dd>700 zł</dd></div>
           </dl>
         </div>
 
