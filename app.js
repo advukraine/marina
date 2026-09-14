@@ -10,11 +10,15 @@
    wczytania obrazka.
    ------------------------------------------------------------ */
 const galleryImages = [
+  'work-2.jpg',
   'work-1.jpg',
+  'master-1.jpg',
+  'work-3.jpg',
+  'work-5.jpg',
+  'work-4.jpg',
   'interior-1.jpg'
   // kolejne zdjęcia dopisz tutaj, np.:
-  // , 'work-2.jpg'
-  // , 'work-3.jpg'
+  // , 'work-6.jpg'
   // , 'interior-2.jpg'
 ];
 
@@ -55,6 +59,7 @@ const translations = {
     gallery_empty: 'Zdjęcia wkrótce.',
     alt_work: 'Praca studia',
     alt_interior: 'Wnętrze salonu',
+    alt_master: 'Vitaliia przy pracy',
 
     pricing_title: 'Cennik',
     pricing_lead: 'Ceny w złotych. Pakiety zabiegów są tańsze.',
@@ -178,6 +183,7 @@ const translations = {
     gallery_empty: 'Фото незабаром.',
     alt_work: 'Робота студії',
     alt_interior: 'Інтер’єр салону',
+    alt_master: 'Віталія за роботою',
 
     pricing_title: 'Ціни',
     pricing_lead: 'Ціни у злотих. Пакети процедур — дешевше.',
@@ -336,6 +342,13 @@ document.querySelectorAll('.lang-btn').forEach(function (btn) {
 const galleryEl = document.getElementById('gallery');
 const loaded = []; // { src } — tylko zdjęcia, które istnieją
 
+function altKeyFor(src) {
+  const file = src.replace('img/', '');
+  if (file.indexOf('interior') === 0) return 'alt_interior';
+  if (file.indexOf('master') === 0) return 'alt_master';
+  return 'alt_work';
+}
+
 function renderGallery() {
   if (!galleryEl) return;
 
@@ -350,7 +363,7 @@ function renderGallery() {
     img.src = src;
     img.loading = 'lazy';
     img.decoding = 'async';
-    img.dataset.altKey = file.indexOf('interior') === 0 ? 'alt_interior' : 'alt_work';
+    img.dataset.altKey = altKeyFor(src);
     img.alt = t(img.dataset.altKey);
 
     // brak pliku w /img → kafelek znika, siatka zostaje poprawna
@@ -416,7 +429,7 @@ function showSlide() {
   if (loaded.length === 0) { closeLightbox(); return; }
   lbIndex = (lbIndex + loaded.length) % loaded.length;
   lbImg.src = loaded[lbIndex];
-  lbImg.alt = loaded[lbIndex].indexOf('img/interior') === 0 ? t('alt_interior') : t('alt_work');
+  lbImg.alt = t(altKeyFor(loaded[lbIndex]));
   lbCounter.textContent = (lbIndex + 1) + ' / ' + loaded.length;
 }
 
