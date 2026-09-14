@@ -1,0 +1,9 @@
+# TRYB DEMO — strona jest ukryta przed wyszukiwarkami.
+# Przy przekazaniu klientowi usuń ten plik (albo zostaw sam Allow
+# poniżej) ORAZ skasuj z index.html linię z meta name="robots".
+User-agent: *
+Disallow: /
+
+# Wersja publiczna — po uruchomieniu zostaw tylko te dwie linie:
+# User-agent: *
+# Allow: /

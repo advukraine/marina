@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ============================================================
+     TRYB DEMO — strona jest ukryta przed Google.
+     Przy przekazaniu klientowi: usuń poniższą linię ORAZ plik
+     robots.txt (albo zmień w nim Disallow na Allow). Dopóki
+     którykolwiek z nich zostaje, strona nie pojawi się w wyszukiwarce.
+     ============================================================ -->
 <meta name="robots" content="noindex, nofollow">
 <title>Vitaliia beauty studio — Siechnice</title>
 <meta name="description" content="Vitaliia beauty studio — manicure, pedicure, brwi i rzęsy, makijaż permanentny, depilacja laserowa i masaż endosferyczny w Siechnicach.">
@@ -36,6 +42,71 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- ============================================================
+     Dane firmy dla Google (JSON-LD). Niewidoczne na stronie —
+     wiążą witrynę z wizytówką w Mapach Google.
+     Godziny i telefon trzymaj zgodne z tym, co widać na stronie.
+     Warto dopisać współrzędne salonu (Mapy Google → prawy przycisk
+     na pinezce → pierwsza pozycja to szerokość i długość) — wstaw
+     zaraz za "address" blok w tej postaci:
+        "geo": { "@type": "GeoCoordinates",
+                 "latitude": 51.0000, "longitude": 17.0000 },
+     ============================================================ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BeautySalon",
+  "name": "Vitaliia beauty studio",
+  "url": "https://boisterous-kringle-4b441f.netlify.app/",
+  "image": "https://boisterous-kringle-4b441f.netlify.app/img/og.jpg",
+  "telephone": "+48787811154",
+  "priceRange": "50–2240 zł",
+  "currenciesAccepted": "PLN",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Generała Fieldorfa 3",
+    "postalCode": "55-011",
+    "addressLocality": "Siechnice",
+    "addressRegion": "dolnośląskie",
+    "addressCountry": "PL"
+  },
+  "hasMap": "https://www.google.com/maps?q=Genera%C5%82a+Fieldorfa+3,+55-011+Siechnice",
+  "sameAs": ["https://instagram.com/vitaliia_beauty_studio"],
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "09:00",
+      "closes": "20:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Saturday",
+      "opens": "09:00",
+      "closes": "14:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Sunday",
+      "opens": "00:00",
+      "closes": "00:00"
+    }
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Cennik",
+    "itemListElement": [
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Manicure" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Pedicure" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Stylizacja i oprawa oka" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Makijaż permanentny" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Depilacja laserowa" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Masaż endosferyczny" } }
+    ]
+  }
+}
+</script>
+
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
