@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Vitaliia beauty studio — Siechnice</title>
+<meta name="description" content="Vitaliia beauty studio — manicure, pedicure, brwi i rzęsy, makijaż permanentny, masaż endosferyczny w Siechnicach.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#top">
+      <span class="brand-name">Vitaliia</span>
+      <span class="brand-sub">beauty studio</span>
+    </a>
+
+    <nav class="main-nav">
+      <a href="#uslugi" data-i18n="nav_services">Usługi</a>
+      <a href="#galeria" data-i18n="nav_gallery">Galeria</a>
+      <a href="#cennik" data-i18n="nav_pricing">Cennik</a>
+      <a href="#kontakt" data-i18n="nav_contact">Kontakt</a>
+    </nav>
+
+    <div class="lang-switch" role="group" aria-label="Język / Мова">
+      <button type="button" class="lang-btn" data-lang="pl">PL</button>
+      <span class="lang-sep">/</span>
+      <button type="button" class="lang-btn" data-lang="ua">UA</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-figure">
+        <img src="img/hero-logo.jpg" alt="Vitaliia beauty studio" width="900" height="1555" fetchpriority="high">
+      </div>
+      <div class="hero-text">
+        <p class="eyebrow" data-i18n="hero_eyebrow">Siechnice</p>
+        <h1 class="hero-title">Vitaliia <span>beauty studio</span></h1>
+        <p class="hero-sub" data-i18n="hero_sub">Manicure, pedicure, brwi i rzęsy, makijaż permanentny oraz masaż endosferyczny w Siechnicach.</p>
+        <div class="hero-actions">
+          <a class="btn btn-solid" href="tel:+48787811154" data-i18n="btn_call">Zadzwoń</a>
+          <a class="btn btn-ghost" href="https://instagram.com/vitaliia_beauty_studio" target="_blank" rel="noopener">Instagram</a>
+        </div>
+        <p class="hero-phone"><a href="tel:+48787811154">+48 787 811 154</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- USŁUGI -->
+  <section id="uslugi" class="section">
+    <div class="container">
+      <h2 class="section-title" data-i18n="services_title">Usługi</h2>
+      <p class="section-lead" data-i18n="services_lead">Pięć kierunków pracy studia — kliknij, aby zobaczyć ceny.</p>
+
+      <ul class="service-grid">
+        <li><a class="service-card" href="#cennik-manicure">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M19 22c0-5 2-8 5-8s5 3 5 8v8a5 5 0 0 1-10 0Z"/><path d="M19.4 27.5h9.2"/><path d="M36 15c1.8 2.2 1.8 4.4 0 6.6-1.8-2.2-1.8-4.4 0-6.6Z"/></svg>
+          <span class="service-name" data-i18n="cat_manicure">Manicure</span>
+          <span class="service-meta" data-i18n="cat_manicure_meta">od 80 zł</span>
+        </a></li>
+        <li><a class="service-card" href="#cennik-pedicure">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 27c0-5 4-9 9-9s10 4 10 9c0 4-2 6-2 9s1 6-3 6-6-2-7-5-2-4-4-5-3-2-3-5Z"/><circle cx="15.5" cy="14.5" r="2.3"/><circle cx="22" cy="11.5" r="2.2"/><circle cx="28.5" cy="12.5" r="2"/><circle cx="34" cy="16" r="1.8"/></svg>
+          <span class="service-name" data-i18n="cat_pedicure">Pedicure</span>
+          <span class="service-meta" data-i18n="cat_pedicure_meta">od 120 zł</span>
+        </a></li>
+        <li><a class="service-card" href="#cennik-oko">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 28c6-8 12-12 18-12s12 4 18 12"/><circle cx="24" cy="26" r="5"/><path d="M12 16l3 4M24 12v5M36 16l-3 4"/></svg>
+          <span class="service-name" data-i18n="cat_oko">Brwi i rzęsy</span>
+          <span class="service-meta" data-i18n="cat_oko_meta">od 30 zł</span>
+        </a></li>
+        <li><a class="service-card" href="#cennik-pmu">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M31 8l9 9-20 20-9 3 3-9Z"/><path d="M28 11l9 9"/><path d="M10 42h28"/></svg>
+          <span class="service-name" data-i18n="cat_pmu">Makijaż permanentny</span>
+          <span class="service-meta" data-i18n="cat_pmu_meta">600 zł</span>
+        </a></li>
+        <li><a class="service-card" href="#cennik-masaz">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="15" cy="24" r="8"/><circle cx="33" cy="24" r="8"/><path d="M15 12v-4M33 12v-4M15 40v-4M33 40v-4"/></svg>
+          <span class="service-name" data-i18n="cat_masaz">Masaż endosferyczny</span>
+          <span class="service-meta" data-i18n="cat_masaz_meta">od 100 zł</span>
+        </a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- GALERIA -->
+  <section id="galeria" class="section section-alt">
+    <div class="container">
+      <h2 class="section-title" data-i18n="gallery_title">Galeria</h2>
+      <p class="section-lead" data-i18n="gallery_lead">Prace studia i wnętrze salonu.</p>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </section>
+
+  <!-- CENNIK -->
+  <section id="cennik" class="section">
+    <div class="container">
+      <h2 class="section-title" data-i18n="pricing_title">Cennik</h2>
+      <p class="section-lead" data-i18n="pricing_lead">Ceny w złotych. Pakiety zabiegów są tańsze.</p>
+
+      <div class="price-columns">
+
+        <!-- MANICURE -->
+        <div class="price-card" id="cennik-manicure">
+          <h3 class="price-card-title" data-i18n="cat_manicure">Manicure</h3>
+          <dl class="price-list">
+            <div class="price-row"><dt data-i18n="m_klasyczny">klasyczny</dt><dd>80 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_hybrydowy">hybrydowy</dt><dd>140 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_uzup">uzupełnienie żelu</dt><dd>160 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_prz_sred">przedłużanie średnie</dt><dd>190 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_prz_dlug">przedłużanie długie</dt><dd>240 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_french">french/ombre</dt><dd>+20 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_zdobienia">zdobienia</dt><dd data-i18n="p_od10">od 10 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_naprawa">naprawa paznokcia</dt><dd>15 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_sc_hyb">ściągnięcie hybrydy</dt><dd>25 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_sc_zel">ściągnięcie żelu</dt><dd>35 zł</dd></div>
+            <div class="price-row"><dt data-i18n="m_sc_plus">ściągnięcie hybrydy/żelu + manicure klasyczny</dt><dd>100 zł</dd></div>
+          </dl>
+        </div>
+
+        <!-- PEDICURE -->
+        <div class="price-card" id="cennik-pedicure">
+          <h3 class="price-card-title" data-i18n="cat_pedicure">Pedicure</h3>
+          <dl class="price-list">
+            <div class="price-row"><dt data-i18n="p_klasyczny">klasyczny</dt><dd>120 zł</dd></div>
+            <div class="price-row"><dt data-i18n="p_hybrydowy">hybrydowy</dt><dd>170 zł</dd></div>
+            <div class="price-row"><dt data-i18n="p_hyb_stopy">hybryda paznokcie u stóp</dt><dd>140 zł</dd></div>
+            <div class="price-row"><dt data-i18n="p_french">french</dt><dd>+20 zł</dd></div>
+            <div class="price-row"><dt data-i18n="p_sc_hyb">ściągnięcie hybrydy</dt><dd>25 zł</dd></div>
+            <div class="price-row"><dt data-i18n="p_sc_plus">ściągnięcie hybrydy + pedicure klasyczny</dt><dd>130 zł</dd></div>
+          </dl>
+        </div>
+
+        <!-- STYLIZACJA I OPRAWA OKA -->
+        <div class="price-card" id="cennik-oko">
+          <h3 class="price-card-title" data-i18n="cat_oko_full">Stylizacja i oprawa oka</h3>
+          <dl class="price-list">
+            <div class="price-row"><dt data-i18n="o_henna_brwi">henna brwi</dt><dd>50 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_henna_rzes">henna rzęs</dt><dd>30 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_henna_oba">henna rzęs i brwi</dt><dd>70 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_regulacja">regulacja brwi</dt><dd>30 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_henna_reg">henna brwi + regulacja</dt><dd>70 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_henna_oba_reg">henna rzęs i brwi + regulacja</dt><dd>80 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_lam_rzes">laminacja rzęs</dt><dd>150 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_lam_brwi">laminacja brwi</dt><dd>100 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_lam_henna">laminacja brwi + henna</dt><dd>120 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_architektura">architektura brwi</dt><dd>80 zł</dd></div>
+            <div class="price-row"><dt data-i18n="o_meskie">regulacja brwi u mężczyzn</dt><dd>40 zł</dd></div>
+          </dl>
+        </div>
+
+        <!-- MAKIJAŻ PERMANENTNY -->
+        <div class="price-card" id="cennik-pmu">
+          <h3 class="price-card-title" data-i18n="cat_pmu">Makijaż permanentny</h3>
+          <dl class="price-list">
+            <div class="price-row"><dt data-i18n="pm_brwi">brwi</dt><dd>600 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_usta">usta</dt><dd>600 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_kreska">kreska w linii rzęs</dt><dd>600 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_kor3">korekta do 3 m</dt><dd>250 zł</dd></div>
+            <div class="price-row"><dt data-i18n="pm_kor12">korekta do 1 roku</dt><dd>400 zł</dd></div>
+          </dl>
+        </div>
+
+        <!-- MASAŻ ENDOSFERYCZNY -->
+        <div class="price-card price-card-wide" id="cennik-masaz">
+          <h3 class="price-card-title" data-i18n="cat_masaz_full">Masaż endosferyczny (rolkowy)</h3>
+
+          <div class="price-subgroups">
+            <div class="price-subgroup">
+              <h4 class="price-sub-title" data-i18n="mas_30">Masaż 30 minut</h4>
+              <dl class="price-list">
+                <div class="price-row"><dt data-i18n="mas_twarz">twarz</dt><dd>100 zł</dd></div>
+                <div class="price-row is-package"><dt data-i18n="mas_6_twarz">6 zabiegów / twarz</dt><dd>540 zł <b class="save">-10%</b></dd></div>
+                <div class="price-row is-package"><dt data-i18n="mas_10_twarz">10 zabiegów / twarz</dt><dd>800 zł <b class="save">-20%</b></dd></div>
+                <div class="price-row"><dt data-i18n="mas_cialo">całe ciało</dt><dd>150 zł</dd></div>
+                <div class="price-row is-package"><dt data-i18n="mas_6_cialo">6 zabiegów / całe ciało</dt><dd>810 zł <b class="save">-10%</b></dd></div>
+                <div class="price-row is-package"><dt data-i18n="mas_10_cialo">10 zabiegów / całe ciało</dt><dd>1200 zł <b class="save">-20%</b></dd></div>
+              </dl>
+            </div>
+
+            <div class="price-subgroup">
+              <h4 class="price-sub-title" data-i18n="mas_60">Masaż 60 minut</h4>
+              <dl class="price-list">
+                <div class="price-row"><dt data-i18n="mas_twarz">twarz</dt><dd>150 zł</dd></div>
+                <div class="price-row is-package"><dt data-i18n="mas_6_twarz">6 zabiegów / twarz</dt><dd>810 zł <b class="save">-10%</b></dd></div>
+                <div class="price-row is-package"><dt data-i18n="mas_10_twarz">10 zabiegów / twarz</dt><dd>1200 zł <b class="save">-20%</b></dd></div>
+                <div class="price-row"><dt data-i18n="mas_cialo">całe ciało</dt><dd>280 zł</dd></div>
+                <div class="price-row is-package"><dt data-i18n="mas_6_cialo">6 zabiegów / całe ciało</dt><dd>1500 zł <b class="save">-10%</b></dd></div>
+                <div class="price-row is-package"><dt data-i18n="mas_10_cialo">10 zabiegów / całe ciało</dt><dd>2240 zł <b class="save">-20%</b></dd></div>
+              </dl>
+            </div>
+          </div>
+
+          <p class="price-note" data-i18n="mas_note">Pakiety 6 zabiegów — 10% taniej, pakiety 10 zabiegów — 20% taniej.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- KONTAKT -->
+  <section id="kontakt" class="section section-alt">
+    <div class="container">
+      <h2 class="section-title" data-i18n="contact_title">Kontakt</h2>
+
+      <div class="contact-grid">
+        <div class="contact-info">
+          <div class="contact-block">
+            <h3 class="contact-label" data-i18n="contact_address">Adres</h3>
+            <p>Generała Fieldorfa 3<br>55-011 Siechnice</p>
+          </div>
+
+          <div class="contact-block">
+            <h3 class="contact-label" data-i18n="contact_hours">Godziny otwarcia</h3>
+            <dl class="hours">
+              <div class="hours-row"><dt data-i18n="day_mon_fri">pon. – pt.</dt><dd>9:00 – 20:00</dd></div>
+              <div class="hours-row"><dt data-i18n="day_sat">sobota</dt><dd>9:00 – 14:00</dd></div>
+              <div class="hours-row"><dt data-i18n="day_sun">niedziela</dt><dd data-i18n="closed">nieczynne</dd></div>
+            </dl>
+          </div>
+
+          <div class="contact-block">
+            <h3 class="contact-label" data-i18n="contact_phone">Telefon</h3>
+            <p><a class="contact-link" href="tel:+48787811154">+48 787 811 154</a></p>
+            <p><a class="contact-link" href="https://instagram.com/vitaliia_beauty_studio" target="_blank" rel="noopener">@vitaliia_beauty_studio</a></p>
+          </div>
+
+          <a class="btn btn-solid btn-block" href="tel:+48787811154" data-i18n="btn_call_book">Zadzwoń i umów wizytę</a>
+        </div>
+
+        <div class="map-wrap">
+          <iframe
+            title="Generała Fieldorfa 3, 55-011 Siechnice"
+            src="https://www.google.com/maps?q=Genera%C5%82a%20Fieldorfa%203%2C%2055-011%20Siechnice&hl=pl&z=16&output=embed"
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div>
+      <p class="footer-brand">Vitaliia <span>beauty studio</span></p>
+      <p>Generała Fieldorfa 3, 55-011 Siechnice</p>
+    </div>
+    <div class="footer-links">
+      <a href="tel:+48787811154">+48 787 811 154</a>
+      <a href="https://instagram.com/vitaliia_beauty_studio" target="_blank" rel="noopener">Instagram</a>
+    </div>
+  </div>
+</footer>
+
+<a class="sticky-call" href="tel:+48787811154" data-i18n="btn_call">Zadzwoń</a>
+
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true">
+  <button class="lb-close" id="lbClose" type="button" aria-label="Zamknij">&times;</button>
+  <button class="lb-nav lb-prev" id="lbPrev" type="button" aria-label="Poprzednie">&#8249;</button>
+  <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="Następne">&#8250;</button>
+  <div class="lb-stage" id="lbStage"><img id="lbImg" src="" alt=""></div>
+  <div class="lb-counter" id="lbCounter"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
