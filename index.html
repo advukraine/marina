@@ -21,42 +21,143 @@
     user-select: none;
     -webkit-tap-highlight-color: transparent;
   }
-  canvas {
-    display: block;
+
+  #c {
     position: fixed;
     inset: 0;
+    display: block;
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    height: 100dvh;
     background: #000;
+    z-index: 0;
   }
+
+  /* экран старта */
+  #tap {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: 300 clamp(15px, 3.4vmin, 26px)/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    letter-spacing: 0.42em;
+    text-indent: 0.42em;
+    color: #7fd4ff;
+    text-shadow: 0 0 18px rgba(77, 166, 255, 0.55);
+    animation: breathe 2.8s ease-in-out infinite;
+    transition: opacity 0.7s ease;
+    cursor: pointer;
+  }
+  #tap.gone { opacity: 0 !important; pointer-events: none; animation: none; }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.22; }
+    50%      { opacity: 0.78; }
+  }
+
+  /* счётчик */
+  #counter {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 3.2vmin);
+    z-index: 2;
+    font: 400 clamp(11px, 2.5vmin, 19px)/1 ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    color: #7fd4ff;
+    text-shadow: 0 0 12px rgba(77, 166, 255, 0.45);
+    opacity: 0;
+    transition: opacity 2s ease;
+    pointer-events: none;
+  }
+  #counter.on { opacity: 0.5; }
+
+  /* плеер в углу */
+  #music {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 2.5vmin);
+    right: calc(env(safe-area-inset-right, 0px) + 2.5vmin);
+    z-index: 3;
+    width: clamp(104px, 30vmin, 200px);
+    height: clamp(104px, 30vmin, 200px);
+    border-radius: 12px;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+  }
+  #music:not(.ready) { pointer-events: none; }
+  #music.ready { opacity: 0.15; }
+  #music.ready:hover, #music.ready.awake { opacity: 1; }
+  #music iframe { display: block; width: 100%; height: 100%; border: 0; }
+  /* прозрачная плёнка: первое касание «будит» плеер, дальше тап проходит внутрь */
+  #scrim { position: absolute; inset: 0; }
+  #music.awake #scrim, #music.no-scrim #scrim { pointer-events: none; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="counter"></div>
+<div id="music"><div id="yt"></div><div id="scrim"></div></div>
+<div id="tap">нажми</div>
 <script>
 (function () {
   'use strict';
 
+  /* ================= НАСТРОЙКИ ================= */
+
+  // слова, из которых собирается сердце (регистр подставляется случайно)
+  const WORDS = ["Мари", "Марина", "люблю тебя", "love you", "моя", "навсегда"];
+
+  // дата, от которой считается счётчик внизу экрана
+  const START_DATE = new Date("2026-04-01");
+
+  // id ролика на YouTube для фоновой музыки
+  const YT_ID = "SHAhGCAYxFU";
+
+  // имя, которое проявляется в центре сердца
+  const NAME = "Марина";
+
+  const MUSIC_VOLUME = 35;      // громкость музыки, 0–100
+  const ASSEMBLE_MS = 2500;     // сколько собирается сердце
+  const NAME_DELAY_MS = 6000;   // когда появляются имя и счётчик
+  const NAME_FADE_MS = 2200;    // длительность их проявления
+  const BEAT_MS = 1000;         // один удар сердца (1000 мс = 60 уд/мин)
+  const BEAT_AMP = 0.08;        // насколько сердце увеличивается на ударе
+  const BURST_MS = 1000;        // за сколько частицы возвращаются после тапа
+
+  const COLORS = ['#4da6ff', '#7fd4ff', '#bde7ff'];
+
+  // размеры надписей заданы долей от ширины сердца — поэтому масштабируются с экраном
+  const SIZE_EDGE = [0.026, 0.042];   // по контуру
+  const SIZE_IN   = [0.033, 0.058];   // внутри
+  const NAME_SIZE = 0.16;             // размер имени относительно ширины сердца
+
+  const MIN_PARTICLES = 200;    // телефон
+  const MAX_PARTICLES = 350;    // широкий десктоп
+
+  /* ============== ДАЛЬШЕ МОЖНО НЕ СМОТРЕТЬ ============== */
+
   var canvas = document.getElementById('c');
   var ctx = canvas.getContext('2d', { alpha: false });
   var measure = document.createElement('canvas').getContext('2d');
+  var tapEl = document.getElementById('tap');
+  var counterEl = document.getElementById('counter');
+  var musicEl = document.getElementById('music');
+  var scrimEl = document.getElementById('scrim');
 
   var W = 0, H = 0, DPR = 1;
   var scale = 1, cx = 0, cy = 0;
+  var spriteScale = 0, spriteDpr = 0;
 
-  var WORDS = ['love you', 'LOVE YOU', 'Love You', 'love you', 'Love you', 'LOVE you'];
-  var COLORS = ['#4da6ff', '#7fd4ff', '#bde7ff'];
-
-  var ASSEMBLE_MS = 2500;      // сборка сердца
-  var NAME_START_MS = 6000;    // появление надписи
-  var NAME_FADE_MS = 2200;
-  var BEAT_MS = 1000;          // ~60 ударов в минуту
-  var NAME = 'Марина';
-
+  var started = false;
   var startTime = 0;
   var lastFrame = 0;
   var particles = [];
   var escapeTimer = 0;
+  var flash = 0;
+  var lastSecond = -1;
 
   function rand(a, b) { return a + Math.random() * (b - a); }
   function pick(arr) { return arr[(Math.random() * arr.length) | 0]; }
@@ -65,6 +166,15 @@
   }
   function monoFont(size) {
     return size.toFixed(1) + 'px ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace';
+  }
+
+  // случайное слово в случайном регистре
+  function styledWord() {
+    var w = pick(WORDS);
+    var r = Math.random();
+    if (r < 0.36) return w.toLowerCase();
+    if (r < 0.70) return w.toUpperCase();
+    return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
   }
 
   /* ---------- форма сердца (параметрическое уравнение) ---------- */
@@ -94,18 +204,19 @@
 
   // равномерное распределение по длине контура (иначе точки сбиваются в комки)
   var ARC = (function () {
-    var N = 2000, pts = [], len = [0], total = 0, prev = heartPoint(0);
+    var N = 2000, ts = [], len = [0], total = 0, prev = heartPoint(0);
     for (var i = 0; i <= N; i++) {
       var t = (i / N) * Math.PI * 2;
       var q = heartPoint(t);
       total += Math.hypot(q.x - prev.x, q.y - prev.y);
-      pts.push(t); len.push(total);
+      ts.push(t); len.push(total);
       prev = q;
     }
-    return { t: pts, len: len, total: total };
+    return { t: ts, len: len, total: total };
   })();
 
   function tAtArc(u) { // u: 0..1 доля длины контура
+    u = u - Math.floor(u);
     var target = u * ARC.total, lo = 0, hi = ARC.t.length - 1;
     while (lo < hi) {
       var mid = (lo + hi) >> 1;
@@ -114,10 +225,12 @@
     return ARC.t[lo];
   }
 
+  /* ---------- частицы ---------- */
   function particleCount() {
-    var small = Math.min(window.innerWidth, window.innerHeight) < 600 ||
-                Math.max(window.innerWidth, window.innerHeight) < 900;
-    return small ? 210 : 280;
+    var d = Math.sqrt(W * H);
+    var k = (d - 570) / (1140 - 570); // телефон -> десктоп
+    k = Math.max(0, Math.min(1, k));
+    return Math.round(MIN_PARTICLES + (MAX_PARTICLES - MIN_PARTICLES) * k);
   }
 
   function buildParticles() {
@@ -130,25 +243,25 @@
         ? tAtArc((i + rand(-0.30, 0.30)) / contour)
         : tAtArc(Math.random());
 
-      var p = heartPoint(t);
-      var hx = p.x, hy = p.y;
+      var q = heartPoint(t);
+      var hx = q.x, hy = q.y;
       var inside = i >= contour;
-      var size = inside ? rand(10, 18) : rand(8, 13);
 
       if (inside) {
         // немного внутри контура — сжатие к центру фигуры
         var k = 0.22 + Math.sqrt(Math.random()) * 0.60;
-        hx = p.x * k;
-        hy = (p.y - HEART_MID_Y) * k + HEART_MID_Y;
+        hx = q.x * k;
+        hy = (q.y - HEART_MID_Y) * k + HEART_MID_Y;
       }
-      list.push({
+
+      var p = {
         hx: hx,
         hy: hy,
-        text: pick(WORDS),
-        size: size,
+        inside: inside,
+        text: styledWord(),
+        sizeK: inside ? rand(SIZE_IN[0], SIZE_IN[1]) : rand(SIZE_EDGE[0], SIZE_EDGE[1]),
         color: pick(COLORS),
         alpha: inside ? rand(0.3, 0.72) : rand(0.55, 1.0),
-        inside: inside,
         // мерцание и дрожание
         twPhase: rand(0, Math.PI * 2),
         twSpeed: rand(0.6, 2.0),
@@ -163,13 +276,17 @@
         dur: ASSEMBLE_MS,
         delay: Math.random() * 550,
         sx: 0, sy: 0,      // точка старта
-        ex: 0, ey: 0,      // текущая позиция при отлёте
+        ex: 0, ey: 0,      // позиция при отлёте
         evx: 0, evy: 0,
         efade: 1,
+        ox: 0, oy: 0,      // отклонение от тапа
+        ovx: 0, ovy: 0,
         x: 0, y: 0,
+        px: 12,
         sprite: null, sw: 0, sh: 0
-      });
-      spawnFrom(list[i]);
+      };
+      spawnFrom(p);
+      list.push(p);
     }
     particles = list;
   }
@@ -179,16 +296,30 @@
     p.sy = rand(-0.1, 1.1) * H;
   }
 
+  function refreshWord(p) {
+    p.text = styledWord();
+    p.color = pick(COLORS);
+    p.sizeK = p.inside ? rand(SIZE_IN[0], SIZE_IN[1]) : rand(SIZE_EDGE[0], SIZE_EDGE[1]);
+    p.alpha = p.inside ? rand(0.3, 0.72) : rand(0.55, 1.0);
+    makeSprite(p);
+  }
+
   /* ---------- спрайты: текст со свечением рисуется один раз ---------- */
+  // длинные слова чуть мельче — иначе контур сердца размывается
+  function lenFactor(text) {
+    return Math.max(0.62, Math.min(1, 7 / text.length));
+  }
+
   function makeSprite(p) {
-    var font = monoFont(p.size);
+    p.px = Math.max(6, p.sizeK * HEART_SPAN_X * scale * lenFactor(p.text));
+    var font = monoFont(p.px);
     measure.font = font;
     var tw = Math.max(1, measure.measureText(p.text).width);
-    var blur = p.size * 0.85;
-    var pad = Math.ceil(blur * 1.8 + 4);
+    var blur = p.px * 0.85;
+    var pad = Math.ceil(blur * 1.25 + 4); // рамка под свечение — меньше рамка, меньше заливки в кадре
 
     var cw = Math.ceil(tw) + pad * 2;
-    var ch = Math.ceil(p.size * 1.7) + pad * 2;
+    var ch = Math.ceil(p.px * 1.7) + pad * 2;
 
     var off = document.createElement('canvas');
     off.width = Math.max(1, Math.ceil(cw * DPR));
@@ -212,26 +343,34 @@
 
   function buildSprites() {
     for (var i = 0; i < particles.length; i++) makeSprite(particles[i]);
+    spriteScale = scale;
+    spriteDpr = DPR;
   }
 
-  /* ---------- размеры / ретина ---------- */
+  /* ---------- размеры / ретина / адаптивность ---------- */
   function resize() {
-    W = window.innerWidth;
-    H = window.innerHeight;
+    W = canvas.clientWidth || window.innerWidth;
+    H = canvas.clientHeight || window.innerHeight;
     DPR = Math.min(window.devicePixelRatio || 1, 2);
 
     canvas.width = Math.max(1, Math.round(W * DPR));
     canvas.height = Math.max(1, Math.round(H * DPR));
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
-    // сердце: ширина 32 ед., высота 22 ед.
-    // запас по краям под ширину самих надписей
-    scale = Math.min((W * 0.96 - 72) / HEART_SPAN_X, (H * 0.80 - 60) / HEART_SPAN_Y);
-    scale = Math.max(scale, 3);
+    // поля: по бокам под ширину самих надписей, снизу под счётчик
+    var padX = Math.max(26, Math.min(W, H) * 0.11);
+    var padTop = Math.max(22, H * 0.06);
+    var padBottom = Math.max(52, H * 0.12);
+
+    var fitW = (W - padX * 2) / HEART_SPAN_X;
+    var fitH = (H - padTop - padBottom) / HEART_SPAN_Y;
+    var target = (Math.min(W, H) * 0.74) / HEART_SPAN_Y; // ~70% меньшей стороны
+
+    scale = Math.max(3, Math.min(fitW, fitH, target));
     cx = W / 2;
-    cy = H / 2;
+    cy = padTop + (H - padTop - padBottom) / 2;
+
+    nameSprite = null;
   }
 
   function heartToScreen(p, k, out) {
@@ -239,18 +378,18 @@
     out.y = cy - (p.hy - HEART_MID_Y) * scale * k;
   }
 
-  /* ---------- биение сердца ~60 bpm ---------- */
+  /* ---------- биение сердца ---------- */
   function beat(phase) {
     var a = Math.exp(-Math.pow((phase - 0.13) / 0.085, 2));
     var b = 0.55 * Math.exp(-Math.pow((phase - 0.35) / 0.10, 2));
     return Math.min(1, a + b);
   }
 
-  /* ---------- надпись «Марина» ---------- */
-  var nameSprite = null, nameW = 0, nameH = 0;
+  /* ---------- надпись с именем ---------- */
+  var nameSprite = null, nameW = 0, nameH = 0, nameSize = 40;
 
   function buildNameSprite() {
-    var size = Math.max(28, Math.min(Math.min(W, H) * 0.125, 96));
+    var size = HEART_SPAN_X * scale * NAME_SIZE;
     var font = function (px) {
       return '600 ' + px.toFixed(1) + 'px "Helvetica Neue", Helvetica, Arial, sans-serif';
     };
@@ -292,10 +431,8 @@
     nameSize = size;
   }
 
-  var nameSize = 40;
-
   function drawName(now) {
-    var age = now - NAME_START_MS;
+    var age = now - NAME_DELAY_MS;
     if (age <= 0) return;
     if (!nameSprite) buildNameSprite();
 
@@ -324,15 +461,35 @@
     ctx.restore();
   }
 
+  /* ---------- счётчик ---------- */
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function daysWord(n) {
+    var a = n % 10, b = n % 100;
+    if (a === 1 && b !== 11) return 'день';
+    if (a >= 2 && a <= 4 && (b < 10 || b >= 20)) return 'дня';
+    return 'дней';
+  }
+  function updateCounter() {
+    var diff = Date.now() - START_DATE.getTime();
+    if (!isFinite(diff) || diff < 0) diff = 0;
+    var total = Math.floor(diff / 1000);
+    var days = Math.floor(total / 86400);
+    var rest = total % 86400;
+    var d = String(days);
+    while (d.length < 3) d = '0' + d;
+    counterEl.textContent = 'вместе ' + d + ' ' + daysWord(days) + ' ' +
+      pad2(Math.floor(rest / 3600)) + ':' + pad2(Math.floor((rest % 3600) / 60)) + ':' + pad2(rest % 60);
+  }
+
   /* ---------- отрыв надписей и возврат новых ---------- */
-  function releaseOne(now) {
+  function releaseOne() {
     var tries = 12;
     while (tries--) {
       var p = particles[(Math.random() * particles.length) | 0];
       if (p.state === 'settled') {
         p.state = 'escape';
-        p.ex = p.x;
-        p.ey = p.y;
+        p.ex = p.x - p.ox;
+        p.ey = p.y - p.oy;
         p.evx = rand(-14, 14);
         p.evy = rand(-34, -16);
         p.efade = 1;
@@ -341,14 +498,37 @@
     }
   }
 
+  /* ---------- вспышка от касания ---------- */
+  function burst(px, py) {
+    flash = 1;
+    var R = HEART_SPAN_X * scale * 0.42;
+    var power = HEART_SPAN_X * scale * 3.0; // импульс пропорционален размеру сердца
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      var dx = p.x - px, dy = p.y - py;
+      var d = Math.hypot(dx, dy);
+      if (d < 0.001) { dx = rand(-1, 1); dy = rand(-1, 1); d = Math.hypot(dx, dy); }
+      var f = power * (R / (d + R)) * rand(0.75, 1.25);
+      p.ovx += (dx / d) * f;
+      p.ovy += (dy / d) * f;
+    }
+  }
+
+  /* ---------- кадр ---------- */
+  // пружина возврата после тапа: за BURST_MS частицы садятся обратно
+  var SPRING_W = 5.7 * (1000 / BURST_MS);
+  var SPRING_K = SPRING_W * SPRING_W;
+  var SPRING_C = 2 * 0.7 * SPRING_W;
+
   var tmp = { x: 0, y: 0 };
 
   function frame(ts) {
-    if (!startTime) { startTime = ts; lastFrame = ts; }
+    if (!lastFrame) lastFrame = ts;
     var dt = Math.min(64, ts - lastFrame);
     lastFrame = ts;
     var now = ts - startTime;
     var sec = now / 1000;
+    var dts = dt / 1000;
 
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.globalCompositeOperation = 'source-over';
@@ -356,16 +536,26 @@
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, W, H);
 
+    flash = Math.max(0, flash - dts / 0.55);
+
     var assembled = now > ASSEMBLE_MS * 0.9;
-    var pulse = assembled ? 1 + 0.08 * beat(((now - ASSEMBLE_MS * 0.9) % BEAT_MS) / BEAT_MS) : 1;
+    var pulse = assembled ? 1 + BEAT_AMP * beat(((now - ASSEMBLE_MS * 0.9) % BEAT_MS) / BEAT_MS) : 1;
+    pulse *= 1 + 0.05 * flash;
 
     // периодический отрыв надписей
     if (now > ASSEMBLE_MS) {
       escapeTimer -= dt;
       if (escapeTimer <= 0) {
         escapeTimer = rand(280, 620);
-        releaseOne(now);
+        releaseOne();
       }
+    }
+
+    // счётчик — раз в секунду, вместе с именем
+    if (now > NAME_DELAY_MS) {
+      var s = Math.floor(Date.now() / 1000);
+      if (s !== lastSecond) { lastSecond = s; updateCounter(); }
+      if (!counterEl.classList.contains('on')) counterEl.classList.add('on');
     }
 
     ctx.globalCompositeOperation = 'lighter';
@@ -374,9 +564,22 @@
       var p = particles[i];
       heartToScreen(p, pulse, tmp);
 
+      // возврат после тапа: затухающая пружина
+      if (p.ox || p.oy || p.ovx || p.ovy) {
+        p.ovx += (-SPRING_K * p.ox - SPRING_C * p.ovx) * dts;
+        p.ovy += (-SPRING_K * p.oy - SPRING_C * p.ovy) * dts;
+        p.ox += p.ovx * dts;
+        p.oy += p.ovy * dts;
+        if (Math.abs(p.ox) < 0.05 && Math.abs(p.oy) < 0.05 &&
+            Math.abs(p.ovx) < 0.5 && Math.abs(p.ovy) < 0.5) {
+          p.ox = p.oy = p.ovx = p.ovy = 0;
+        }
+      }
+
       var jx = Math.sin(sec * p.jxSpeed + p.jxPhase) * p.jAmp;
       var jy = Math.cos(sec * p.jySpeed + p.jyPhase) * p.jAmp;
       var a = p.alpha * (0.68 + 0.32 * Math.sin(sec * p.twSpeed + p.twPhase));
+      a *= 1 + 0.55 * flash;
 
       if (p.state === 'fly') {
         var e = (now - p.t0 - p.delay) / p.dur;
@@ -388,37 +591,37 @@
           p.x = tmp.x + jx;
           p.y = tmp.y + jy;
         } else {
-          var k = easeInOutCubic(e);
-          p.x = p.sx + (tmp.x + jx - p.sx) * k;
-          p.y = p.sy + (tmp.y + jy - p.sy) * k;
-          a *= 0.25 + 0.75 * k;
+          var ke = easeInOutCubic(e);
+          p.x = p.sx + (tmp.x + jx - p.sx) * ke;
+          p.y = p.sy + (tmp.y + jy - p.sy) * ke;
+          a *= 0.25 + 0.75 * ke;
         }
       } else if (p.state === 'settled') {
         p.x = tmp.x + jx;
         p.y = tmp.y + jy;
       } else { // escape
-        p.ex += p.evx * dt / 1000;
-        p.ey += p.evy * dt / 1000;
-        p.evy -= 6 * dt / 1000;
+        p.ex += p.evx * dts;
+        p.ey += p.evy * dts;
+        p.evy -= 6 * dts;
         p.efade -= dt / 2400;
         p.x = p.ex;
         p.y = p.ey;
         a *= Math.max(0, p.efade);
         if (p.efade <= 0) {
           // на её место приходит новая надпись
-          p.text = pick(WORDS);
-          p.color = pick(COLORS);
-          p.size = p.inside ? rand(10, 18) : rand(8, 13);
-          p.alpha = p.inside ? rand(0.3, 0.72) : rand(0.55, 1.0);
-          makeSprite(p);
+          refreshWord(p);
           spawnFrom(p);
           p.state = 'fly';
           p.t0 = now;
           p.delay = 0;
           p.dur = rand(1400, 2200);
+          p.ox = p.oy = p.ovx = p.ovy = 0;
           continue;
         }
       }
+
+      p.x += p.ox;
+      p.y += p.oy;
 
       if (a <= 0.01 || !p.sprite) continue;
       ctx.globalAlpha = Math.min(1, a * 0.88);
@@ -432,30 +635,130 @@
     requestAnimationFrame(frame);
   }
 
-  /* ---------- запуск ---------- */
-  var resizeRaf = 0;
+  /* ---------- музыка (YouTube IFrame API, молча падает при любой ошибке) ---------- */
+  var player = null, musicDead = false;
+
+  function killMusic() {
+    musicDead = true;
+    musicEl.classList.remove('ready', 'awake');
+  }
+
+  function startMusic() {
+    try {
+      if (window.YT && window.YT.Player) { createPlayer(); return; }
+
+      window.onYouTubeIframeAPIReady = function () {
+        try { createPlayer(); } catch (e) { killMusic(); }
+      };
+
+      var tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      tag.async = true;
+      tag.onerror = killMusic;
+      document.head.appendChild(tag);
+
+      // API не отвечает — просто живём без звука
+      setTimeout(function () { if (!player) killMusic(); }, 9000);
+    } catch (e) { killMusic(); }
+  }
+
+  function createPlayer() {
+    if (musicDead) return;
+    player = new window.YT.Player('yt', {
+      videoId: YT_ID,
+      width: '200',
+      height: '200',
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        loop: 1,
+        playlist: YT_ID,     // нужен для loop одного ролика
+        playsinline: 1,
+        rel: 0,
+        fs: 0,
+        disablekb: 1,
+        modestbranding: 1,
+        iv_load_policy: 3
+      },
+      events: {
+        onReady: function (e) {
+          try {
+            e.target.setVolume(MUSIC_VOLUME);
+            e.target.playVideo();
+          } catch (_) {}
+          musicEl.classList.add('ready');
+        },
+        onStateChange: function (e) {
+          // страховка на случай, если loop не сработал
+          if (e.data === window.YT.PlayerState.ENDED) {
+            try { e.target.seekTo(0); e.target.playVideo(); } catch (_) {}
+          }
+        },
+        onError: killMusic
+      }
+    });
+  }
+
+  /* ---------- плеер: пробуждение по касанию ---------- */
+  var awakeTimer = 0;
+  if (window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+    musicEl.classList.add('no-scrim'); // на десктопе хватает :hover
+  }
+  scrimEl.addEventListener('pointerdown', function (e) {
+    e.stopPropagation();
+    musicEl.classList.add('awake');
+    clearTimeout(awakeTimer);
+    awakeTimer = setTimeout(function () { musicEl.classList.remove('awake'); }, 6000);
+  });
+
+  /* ---------- старт ---------- */
+  function start(e) {
+    if (started) return;
+    started = true;
+    tapEl.classList.add('gone');
+    setTimeout(function () { tapEl.style.display = 'none'; }, 800);
+
+    startMusic();
+
+    startTime = performance.now();
+    lastFrame = 0;
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('pointerdown', function (e) {
+    if (musicEl.contains(e.target)) return;   // тап по плееру — не трогаем сердце
+    if (!started) { start(e); return; }
+    burst(e.clientX, e.clientY);
+  }, { passive: true });
+
+  /* ---------- ресайз / поворот ---------- */
+  var layoutRaf = 0, spriteTimer = 0;
   function onResize() {
-    if (resizeRaf) cancelAnimationFrame(resizeRaf);
-    resizeRaf = requestAnimationFrame(function () {
-      resizeRaf = 0;
-      var prevDpr = DPR;
+    if (layoutRaf) cancelAnimationFrame(layoutRaf);
+    layoutRaf = requestAnimationFrame(function () {
+      layoutRaf = 0;
       resize();
-      nameSprite = null;
-      if (DPR !== prevDpr) buildSprites();
+      // спрайты зависят от масштаба — перерисовываем, когда он заметно изменился
+      if (DPR !== spriteDpr || Math.abs(scale - spriteScale) > spriteScale * 0.02) {
+        clearTimeout(spriteTimer);
+        spriteTimer = setTimeout(buildSprites, 160);
+      }
     });
   }
 
   resize();
   buildParticles();
   buildSprites();
+  updateCounter();
 
   window.addEventListener('resize', onResize, { passive: true });
   window.addEventListener('orientationchange', onResize, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', onResize, { passive: true });
+  }
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) lastFrame = performance.now();
+    if (!document.hidden) lastFrame = 0;
   });
-
-  requestAnimationFrame(frame);
 })();
 </script>
 </body>
