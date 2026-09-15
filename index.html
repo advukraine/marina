@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Калькулятор</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="calculator" aria-label="Калькулятор">
+    <div class="display">
+      <div class="display__expression" id="expression" aria-hidden="true"></div>
+      <output class="display__value" id="value" aria-live="polite">0</output>
+    </div>
+
+    <div class="keys" id="keys">
+      <button type="button" class="key key--fn" data-action="clear" aria-label="Сбросить">AC</button>
+      <button type="button" class="key key--fn" data-action="sign" aria-label="Сменить знак">±</button>
+      <button type="button" class="key key--fn" data-action="percent" aria-label="Процент">%</button>
+      <button type="button" class="key key--op" data-action="operator" data-operator="/" aria-label="Разделить">÷</button>
+
+      <button type="button" class="key" data-action="digit" data-digit="7">7</button>
+      <button type="button" class="key" data-action="digit" data-digit="8">8</button>
+      <button type="button" class="key" data-action="digit" data-digit="9">9</button>
+      <button type="button" class="key key--op" data-action="operator" data-operator="*" aria-label="Умножить">×</button>
+
+      <button type="button" class="key" data-action="digit" data-digit="4">4</button>
+      <button type="button" class="key" data-action="digit" data-digit="5">5</button>
+      <button type="button" class="key" data-action="digit" data-digit="6">6</button>
+      <button type="button" class="key key--op" data-action="operator" data-operator="-" aria-label="Вычесть">−</button>
+
+      <button type="button" class="key" data-action="digit" data-digit="1">1</button>
+      <button type="button" class="key" data-action="digit" data-digit="2">2</button>
+      <button type="button" class="key" data-action="digit" data-digit="3">3</button>
+      <button type="button" class="key key--op" data-action="operator" data-operator="+" aria-label="Сложить">+</button>
+
+      <button type="button" class="key key--fn" data-action="backspace" aria-label="Удалить символ">⌫</button>
+      <button type="button" class="key" data-action="digit" data-digit="0">0</button>
+      <button type="button" class="key" data-action="digit" data-digit="." aria-label="Запятая">.</button>
+      <button type="button" class="key key--op" data-action="equals" aria-label="Равно">=</button>
+    </div>
+
+    <p class="hint">Работает и с клавиатуры: цифры, <kbd>+</kbd> <kbd>-</kbd> <kbd>*</kbd> <kbd>/</kbd>, <kbd>Enter</kbd>, <kbd>Backspace</kbd>, <kbd>Esc</kbd></p>
+  </main>
+
+  <script src="calculator.js"></script>
+</body>
+</html>
