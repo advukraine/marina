@@ -29,6 +29,7 @@
   var MAKS_SZTUK = 99999;
   var KLUCZ_STANU = 'kasa.stan.v1';
   var KLUCZ_MOTYWU = 'kasa.motyw';
+  var KLUCZ_SZCZEGOLOW = 'kasa.szczegoly';
 
   var waluta = new Intl.NumberFormat('pl-PL', {
     style: 'currency',
@@ -83,6 +84,10 @@
     dodBanknoty: document.getElementById('dod-banknoty'),
     dodMonety: document.getElementById('dod-monety'),
     dodRazem: document.getElementById('dod-razem'),
+    skrotBanknoty: document.getElementById('skrot-banknoty'),
+    skrotMonety: document.getElementById('skrot-monety'),
+    karta: document.getElementById('karta'),
+    btnSzczegoly: document.getElementById('btn-szczegoly'),
     pasek: document.getElementById('pasek'),
     paskaBanknoty: document.getElementById('pasek-banknoty'),
     paskaMonety: document.getElementById('pasek-monety'),
@@ -271,6 +276,9 @@
     el.metaBanknoty.textContent = kwota(s.banknotyGr);
     el.metaMonety.textContent = kwota(s.monetyGr);
 
+    el.skrotBanknoty.textContent = kwota(s.banknotyGr);
+    el.skrotMonety.textContent = kwota(s.monetyGr);
+
     el.kwotaBanknoty.textContent = kwota(s.banknotyGr);
     el.kwotaMonety.textContent = kwota(s.monetyGr);
     el.kwotaRazem.textContent = kwota(s.razem);
@@ -455,6 +463,16 @@
     });
   }
 
+  function ustawSzczegoly(rozwiniete) {
+    el.karta.classList.toggle('rozwinieta', rozwiniete);
+    el.btnSzczegoly.setAttribute('aria-expanded', rozwiniete ? 'true' : 'false');
+    try { localStorage.setItem(KLUCZ_SZCZEGOLOW, rozwiniete ? '1' : '0'); } catch (e) {}
+  }
+
+  function przelaczSzczegoly() {
+    ustawSzczegoly(!el.karta.classList.contains('rozwinieta'));
+  }
+
   function przelaczMotyw() {
     var nowy = document.documentElement.dataset.motyw === 'ciemny' ? 'jasny' : 'ciemny';
     document.documentElement.dataset.motyw = nowy;
@@ -475,6 +493,13 @@
   });
 
   el.btnWyczysc.addEventListener('click', wyczysc);
+  el.btnSzczegoly.addEventListener('click', przelaczSzczegoly);
+
+  try {
+    ustawSzczegoly(localStorage.getItem(KLUCZ_SZCZEGOLOW) === '1');
+  } catch (e) {
+    ustawSzczegoly(false);
+  }
   el.btnDrukuj.addEventListener('click', function () { window.print(); });
   el.btnMotyw.addEventListener('click', przelaczMotyw);
 

@@ -496,6 +496,56 @@ html[data-motyw="ciemny"] .wiersz__zeton { color: color-mix(in oklab, var(--kolo
 
 .rozbicie__nota { margin: .55rem 0 0; font-size: .68rem; color: var(--atrament-3); }
 
+/* jednolinijkowe rozbicie — na telefonie zastępuje tabelę i rozwija resztę karty */
+
+.skrot {
+  display: none;
+  width: 100%;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .2rem .9rem;
+  margin-top: .5rem;
+  padding: .25rem 0 0;
+  border: 0;
+  background: none;
+  color: var(--atrament-2);
+  font-family: var(--font-ui);
+  font-size: .78rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.skrot__poz { display: inline-flex; align-items: center; gap: .32rem; white-space: nowrap; }
+.skrot__poz b {
+  font-family: var(--font-cyfry);
+  font-weight: 600;
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.03em;
+  color: var(--atrament);
+}
+.skrot__poz[data-grupa="banknoty"] .kropka { background: var(--zielen); }
+.skrot__poz[data-grupa="monety"] .kropka { background: var(--zloto); }
+
+/* po rozwinięciu kwoty pokazuje już tabela poniżej — skrót zostaje samym przełącznikiem */
+.skrot__etykieta { display: none; }
+.podsumowanie__karta.rozwinieta .skrot__etykieta { display: inline; }
+.podsumowanie__karta.rozwinieta .skrot__poz { display: none; }
+
+.skrot__strzalka {
+  margin-left: auto;
+  width: 0; height: 0;
+  border-left: 6px solid currentColor;
+  border-block: 5px solid transparent;
+  transition: transform .2s ease;
+}
+.podsumowanie__karta.rozwinieta /* po rozwinięciu kwoty pokazuje już tabela poniżej — skrót zostaje samym przełącznikiem */
+.skrot__etykieta { display: none; }
+.podsumowanie__karta.rozwinieta .skrot__etykieta { display: inline; }
+.podsumowanie__karta.rozwinieta .skrot__poz { display: none; }
+
+.skrot__strzalka { transform: rotate(90deg); }
+
 .podsumowanie__akcje { display: grid; grid-template-columns: 1fr auto; gap: .5rem; margin-top: 1rem; }
 
 /* porównanie */
@@ -554,26 +604,61 @@ html[data-motyw="ciemny"] .wiersz__zeton { color: color-mix(in oklab, var(--kolo
 }
 
 @media (max-width: 1019px) {
-  /* Pasek sumy przykleja się do dołu ekranu — trzymamy go niskim,
-     żeby zostawić jak najwięcej miejsca na wiersze nominałów. */
-  html { scroll-padding-bottom: 15rem; }
+  /* Telefon: liczy się każdy piksel wysokości — nagłówek niski, wiersze gęste,
+     a pasek sumy pokazuje tylko to, co potrzebne w trakcie liczenia. */
+  html { scroll-padding-bottom: 12rem; }
+
+  .pasek {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: .5rem;
+    padding: .85rem clamp(.8rem, 3.5vw, 2rem) .6rem;
+  }
+  .marka { gap: .6rem; min-width: 0; }
+  .marka__znak { width: 42px; height: 42px; border-radius: 12px; font-size: 1.15rem; }
+  .marka__nazwa { font-size: 1.28rem; }
+  .marka__opis { display: none; }
+  .pasek__narzedzia { gap: .4rem; }
+  .przycisk__tekst { display: none; }
+  .przycisk--duch { width: 42px; height: 42px; min-height: 42px; padding: 0; }
+
+  .uklad { padding-inline: clamp(.8rem, 3.5vw, 2rem); gap: .8rem; }
+  .arkusze { gap: .8rem; }
+
+  .arkusz__glowa { padding: .75rem .85rem .55rem; }
+  .arkusz__tytul { font-size: .95rem; }
+  .wiersze { padding: .3rem; }
+
+  .wiersz { grid-template-columns: 60px 1fr auto; gap: .45rem; padding: .26rem .32rem; }
+  .wiersz__zeton { padding: .34rem .18rem; }
+  .wiersz__nominal { font-size: .92rem; }
+  .wiersz__jednostka { font-size: .58rem; }
+  .krok { grid-template-columns: 34px minmax(38px, 1fr) 34px; max-width: none; }
+  .krok__btn, .krok__input { height: 36px; }
+  .wiersz__wartosc { font-size: .74rem; min-width: 7.4ch; }
 
   .podsumowanie__karta {
     border-radius: var(--promien) var(--promien) 0 0;
-    background: color-mix(in oklab, var(--papier-2) 93%, transparent);
-    padding: .7rem .9rem max(.8rem, env(safe-area-inset-bottom));
+    background: color-mix(in oklab, var(--papier-2) 94%, transparent);
+    padding: .55rem .85rem max(.6rem, env(safe-area-inset-bottom));
   }
-  .podsumowanie__glowa { padding-bottom: .55rem; }
-  .podsumowanie__glowa { padding-bottom: .45rem; }
-  .rozbicie__pasek { margin-top: .55rem; height: 8px; }
-  .rozbicie__tabela { margin-top: .35rem; }
+  .podsumowanie__glowa { padding-bottom: .4rem; }
+  .podsumowanie__suma { font-size: clamp(1.35rem, 6vw, 1.85rem); }
+  .rozbicie__pasek { margin-top: .45rem; height: 7px; }
+
+  .skrot { display: flex; }
+  .szczegoly { display: none; }
+  .podsumowanie__karta.rozwinieta .szczegoly { display: block; }
+
+  .rozbicie__tabela { margin-top: .5rem; }
   .rozbicie__rzad th, .rozbicie__kwota, .rozbicie__dodatki { padding-block: .22rem; }
-  /* na telefonie sumę razem pokazuje już wielka liczba u góry karty */
+  /* sumę razem pokazuje już wielka liczba u góry karty */
   .rozbicie__rzad--razem, .rozbicie__nota { display: none; }
-  .porownanie { margin-top: .5rem; padding-top: .45rem; }
   .podsumowanie__akcje { margin-top: .6rem; }
   .podsumowanie__akcje .przycisk { min-height: 42px; }
-  .porownanie { margin-top: .6rem; padding-top: .5rem; }
+  .porownanie { margin-top: .55rem; padding-top: .5rem; }
+
+  .stopka { padding-top: .9rem; padding-bottom: 2rem; }
 }
 
 /* ---------- stopka i komunikat ---------- */
@@ -673,6 +758,8 @@ kbd {
   .arkusz, .podsumowanie__karta { box-shadow: none; border-color: #999; break-inside: avoid; margin-bottom: 1rem; }
   .podsumowanie { position: static; }
   .porownanie[open] .porownanie__tresc { display: block; }
+  .skrot { display: none !important; }
+  .szczegoly { display: block !important; }
   .krok__btn { display: none; }
   .krok { border: 0; background: none; max-width: none; grid-template-columns: auto; }
   .krok__input { border: 0; text-align: left; height: auto; padding: 0; }

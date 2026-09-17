@@ -19,7 +19,9 @@ Wpisujesz liczbę sztuk przy nominale — suma liczy się od razu.
 - **Porównanie z kwotą** — pokazuje nadwyżkę albo niedobór względem kwoty oczekiwanej.
 - **Kopiowanie zestawienia** do schowka i **wydruk** przygotowany pod kartkę A4.
 - **Zapis w przeglądarce** — odświeżenie strony nie kasuje wpisanych sztuk.
-- **Wyczyść z możliwością cofnięcia**, motyw jasny i ciemny, pełna obsługa telefonu.
+- **Wyczyść z możliwością cofnięcia**, motyw jasny i ciemny.
+- **Na telefonie** pasek sumy jest zwinięty do jednej linii (suma, pasek proporcji
+  i rozbicie na banknoty/monety), a szczegóły i przyciski rozwija się jednym dotknięciem.
 
 ## Dokładność
 
@@ -36,6 +38,14 @@ Strona jest statyczna — nie wymaga budowania ani zależności.
 npx http-server . -p 8080
 # albo po prostu otwórz index.html w przeglądarce
 ```
+
+## Aktualizacja wdrożonej strony
+
+Pliki nie mają skrótów w nazwach, dlatego `netlify.toml` i `_headers` każą przeglądarce
+sprawdzać CSS i JS przy każdym wejściu (`max-age=0, must-revalidate`), a `index.html`
+odwołuje się do nich z parametrem `?v=`. Przy kolejnej zmianie `assets/` podnieś ten
+numer w `index.html` — inaczej telefon może połączyć nowy HTML ze starymi plikami
+z pamięci podręcznej i układ się rozjedzie.
 
 ## Wdrożenie (Netlify)
 

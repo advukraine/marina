@@ -12,7 +12,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Martian+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css">
+<!-- ?v= przy każdej zmianie plików: przeglądarka nie poda starej wersji z pamięci -->
+<link rel="stylesheet" href="assets/styles.css?v=3">
 <script>
   (function () {
     try {
@@ -43,9 +44,9 @@
     </div>
   </div>
   <div class="pasek__narzedzia">
-    <button type="button" class="przycisk przycisk--duch" id="btn-drukuj" title="Drukuj zestawienie">
+    <button type="button" class="przycisk przycisk--duch" id="btn-drukuj" title="Drukuj zestawienie" aria-label="Drukuj zestawienie">
       <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18"><path d="M7 9V3h10v6M7 19H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 15h10v6H7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-      <span>Drukuj</span>
+      <span class="przycisk__tekst">Drukuj</span>
     </button>
     <button type="button" class="przycisk przycisk--duch przycisk--ikona" id="btn-motyw" aria-label="Przełącz motyw" title="Przełącz motyw jasny / ciemny">
       <svg class="ikona-slonce" viewBox="0 0 24 24" aria-hidden="true" width="18" height="18"><circle cx="12" cy="12" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v2.6M12 19.4V22M2 12h2.6M19.4 12H22M4.9 4.9l1.9 1.9M17.2 17.2l1.9 1.9M19.1 4.9l-1.9 1.9M6.8 17.2l-1.9 1.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -63,7 +64,11 @@
     <section class="arkusz" aria-labelledby="tyt-banknoty">
       <header class="arkusz__glowa">
         <h2 id="tyt-banknoty" class="arkusz__tytul">Banknoty</h2>
-        <p class="arkusz__meta"><span class="arkusz__szt" id="szt-banknoty">0 szt.</span><span class="arkusz__kropka" aria-hidden="true">·</span><span class="arkusz__kwota" id="meta-banknoty">0,00 zł</span></p>
+        <p class="arkusz__meta">
+          <span class="arkusz__szt" id="szt-banknoty">0 szt.</span>
+          <span class="arkusz__kropka" aria-hidden="true">·</span>
+          <span class="arkusz__kwota" id="meta-banknoty">0,00 zł</span>
+        </p>
       </header>
       <ol class="wiersze" id="lista-banknoty"></ol>
     </section>
@@ -71,25 +76,41 @@
     <section class="arkusz" aria-labelledby="tyt-monety">
       <header class="arkusz__glowa">
         <h2 id="tyt-monety" class="arkusz__tytul">Monety</h2>
-        <p class="arkusz__meta"><span class="arkusz__szt" id="szt-monety">0 szt.</span><span class="arkusz__kropka" aria-hidden="true">·</span><span class="arkusz__kwota" id="meta-monety">0,00 zł</span></p>
+        <p class="arkusz__meta">
+          <span class="arkusz__szt" id="szt-monety">0 szt.</span>
+          <span class="arkusz__kropka" aria-hidden="true">·</span>
+          <span class="arkusz__kwota" id="meta-monety">0,00 zł</span>
+        </p>
       </header>
       <ol class="wiersze" id="lista-monety"></ol>
     </section>
   </div>
 
   <aside class="podsumowanie" aria-label="Podsumowanie">
-    <div class="podsumowanie__karta">
+    <div class="podsumowanie__karta" id="karta">
       <div class="podsumowanie__glowa">
         <p class="podsumowanie__etykieta">Razem</p>
         <p class="podsumowanie__suma" id="suma" aria-live="polite">0,00 zł</p>
       </div>
 
-      <div class="rozbicie">
-        <div class="rozbicie__pasek" id="pasek" role="img" aria-label="Udział banknotów i monet w sumie">
-          <span class="rozbicie__udzial rozbicie__udzial--banknoty" id="pasek-banknoty"></span>
-          <span class="rozbicie__udzial rozbicie__udzial--monety" id="pasek-monety"></span>
-        </div>
+      <div class="rozbicie__pasek" id="pasek" role="img" aria-label="Udział banknotów i monet w sumie">
+        <span class="rozbicie__udzial rozbicie__udzial--banknoty" id="pasek-banknoty"></span>
+        <span class="rozbicie__udzial rozbicie__udzial--monety" id="pasek-monety"></span>
+      </div>
 
+      <!-- telefon: jedna linia z rozbiciem, która rozwija resztę karty -->
+      <button type="button" class="skrot" id="btn-szczegoly" aria-expanded="false" aria-controls="szczegoly">
+        <span class="skrot__poz" data-grupa="banknoty">
+          <span class="kropka" aria-hidden="true"></span>Banknoty <b id="skrot-banknoty">0,00 zł</b>
+        </span>
+        <span class="skrot__poz" data-grupa="monety">
+          <span class="kropka" aria-hidden="true"></span>Monety <b id="skrot-monety">0,00 zł</b>
+        </span>
+        <span class="skrot__etykieta">Zwiń szczegóły</span>
+        <span class="skrot__strzalka" aria-hidden="true"></span>
+      </button>
+
+      <div class="szczegoly" id="szczegoly">
         <table class="rozbicie__tabela">
           <caption class="tylko-dla-czytnika">Ile złotych w banknotach, ile w monetach</caption>
           <tbody>
@@ -112,23 +133,23 @@
         </table>
 
         <p class="rozbicie__nota">Policzone nominały: <span id="stat-nominaly">0</span> z 15</p>
-      </div>
 
-      <div class="podsumowanie__akcje">
-        <button type="button" class="przycisk przycisk--glowny" id="btn-kopiuj">Kopiuj zestawienie</button>
-        <button type="button" class="przycisk przycisk--cichy" id="btn-wyczysc">Wyczyść</button>
-      </div>
-
-      <details class="porownanie" id="porownanie">
-        <summary>Porównaj z kwotą <span class="porownanie__znacznik" aria-hidden="true"></span></summary>
-        <div class="porownanie__tresc">
-          <label class="pole">
-            <span class="pole__etykieta">Kwota oczekiwana</span>
-            <input type="text" id="oczekiwana" class="pole__input" inputmode="decimal" autocomplete="off" placeholder="np. 1500,00">
-          </label>
-          <p class="porownanie__wynik" id="roznica">Wpisz kwotę, aby zobaczyć różnicę.</p>
+        <div class="podsumowanie__akcje">
+          <button type="button" class="przycisk przycisk--glowny" id="btn-kopiuj">Kopiuj zestawienie</button>
+          <button type="button" class="przycisk przycisk--cichy" id="btn-wyczysc">Wyczyść</button>
         </div>
-      </details>
+
+        <details class="porownanie" id="porownanie">
+          <summary>Porównaj z kwotą <span class="porownanie__znacznik" aria-hidden="true"></span></summary>
+          <div class="porownanie__tresc">
+            <label class="pole">
+              <span class="pole__etykieta">Kwota oczekiwana</span>
+              <input type="text" id="oczekiwana" class="pole__input" inputmode="decimal" autocomplete="off" placeholder="np. 1500,00">
+            </label>
+            <p class="porownanie__wynik" id="roznica">Wpisz kwotę, aby zobaczyć różnicę.</p>
+          </div>
+        </details>
+      </div>
     </div>
   </aside>
 </main>
@@ -143,6 +164,6 @@
 
 <div class="komunikat" id="komunikat" role="status" aria-live="polite"></div>
 
-<script src="assets/app.js"></script>
+<script src="assets/app.js?v=3"></script>
 </body>
 </html>

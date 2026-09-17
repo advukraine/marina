@@ -1,13 +1,12 @@
 [build]
   publish = "."
 
+# Strona jest wdrażana ręcznie, bez skrótów w nazwach plików, więc przeglądarka
+# musi za każdym razem sprawdzić, czy CSS/JS się nie zmieniły. Inaczej po
+# aktualizacji telefon miesza nowy HTML ze starymi plikami z pamięci podręcznej.
 [[headers]]
   for = "/*"
   [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=3600"
