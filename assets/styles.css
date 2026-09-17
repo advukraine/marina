@@ -14,6 +14,7 @@
   --linia-mocna: rgba(22, 21, 15, .26);
   --zielen: #164f3c;
   --zielen-jasna: #2a7d5f;
+  --zloto: #a3761d;
   --czerwien: #a3301f;
   --cien-s: 0 1px 0 rgba(22, 21, 15, .05);
   --cien-m: 0 2px 10px rgba(22, 21, 15, .07), 0 18px 40px -28px rgba(22, 21, 15, .5);
@@ -38,6 +39,7 @@ html[data-motyw="ciemny"] {
   --linia-mocna: rgba(244, 240, 228, .3);
   --zielen: #7ad3a8;
   --zielen-jasna: #a8e6c6;
+  --zloto: #e0b866;
   --czerwien: #ff8a6b;
   --cien-s: 0 1px 0 rgba(0, 0, 0, .4);
   --cien-m: 0 2px 10px rgba(0, 0, 0, .45), 0 18px 40px -28px #000;
@@ -253,12 +255,16 @@ html:not([data-motyw="ciemny"]) .ikona-ksiezyc { display: none; }
 
 .arkusz__meta {
   margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
   font-family: var(--font-cyfry);
   font-size: .72rem;
-  color: var(--atrament-3);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+.arkusz__szt, .arkusz__kropka { color: var(--atrament-3); }
+.arkusz__kwota { font-weight: 600; color: var(--atrament); }
 
 .wiersze { list-style: none; margin: 0; padding: .35rem; display: grid; gap: 2px; }
 
@@ -398,20 +404,97 @@ html[data-motyw="ciemny"] .wiersz__zeton { color: color-mix(in oklab, var(--kolo
 }
 .podsumowanie__suma.drgnij { transform: scale(1.045); }
 
-.statystyki {
-  margin: .85rem 0 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: .5rem;
+/* rozbicie sumy: ile złotych leży w banknotach, a ile w monetach */
+
+.tylko-dla-czytnika {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-.statystyki__poz { display: grid; gap: .1rem; }
-.statystyki dt { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--atrament-3); }
-.statystyki dd {
-  margin: 0;
+
+.rozbicie__pasek {
+  display: flex;
+  height: 10px;
+  margin-top: .95rem;
+  border: 1px solid var(--linia);
+  border-radius: 999px;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(45deg, var(--linia) 0 3px, transparent 3px 7px);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.rozbicie__udzial {
+  width: 0;
+  transition: width .35s cubic-bezier(.2, .8, .3, 1);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.rozbicie__udzial--banknoty { background: linear-gradient(90deg, var(--zielen), var(--zielen-jasna)); }
+.rozbicie__udzial--monety { background: linear-gradient(90deg, color-mix(in oklab, var(--zloto) 80%, #fff), var(--zloto)); }
+
+.rozbicie__tabela {
+  width: 100%;
+  margin-top: .55rem;
+  border-collapse: collapse;
+}
+
+.rozbicie__rzad th {
+  text-align: left;
+  font-weight: 500;
+  font-size: .8rem;
+  color: var(--atrament-2);
+  padding: .34rem 0;
+  white-space: nowrap;
+}
+
+.kropka {
+  display: inline-block;
+  width: 8px; height: 8px;
+  margin-right: .45rem;
+  border-radius: 50%;
+  vertical-align: baseline;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.rozbicie__rzad[data-grupa="banknoty"] .kropka { background: var(--zielen); }
+.rozbicie__rzad[data-grupa="monety"] .kropka { background: var(--zloto); }
+
+.rozbicie__kwota {
+  padding: .34rem .5rem;
+  text-align: right;
+  white-space: nowrap;
   font-family: var(--font-cyfry);
-  font-size: .78rem;
+  font-size: .86rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.03em;
+}
+
+.rozbicie__dodatki {
+  padding: .34rem 0;
+  text-align: right;
+  white-space: nowrap;
+  font-family: var(--font-cyfry);
+  font-size: .68rem;
+  color: var(--atrament-3);
   font-variant-numeric: tabular-nums;
 }
+
+.rozbicie__rzad--razem th,
+.rozbicie__rzad--razem td { border-top: 1px solid var(--linia-mocna); padding-top: .45rem; }
+.rozbicie__rzad--razem th {
+  font-weight: 600;
+  font-size: .7rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--atrament);
+}
+.rozbicie__rzad--razem .rozbicie__kwota { font-weight: 600; color: var(--zielen); }
+
+.rozbicie__nota { margin: .55rem 0 0; font-size: .68rem; color: var(--atrament-3); }
 
 .podsumowanie__akcje { display: grid; grid-template-columns: 1fr auto; gap: .5rem; margin-top: 1rem; }
 
@@ -481,9 +564,13 @@ html[data-motyw="ciemny"] .wiersz__zeton { color: color-mix(in oklab, var(--kolo
     padding: .7rem .9rem max(.8rem, env(safe-area-inset-bottom));
   }
   .podsumowanie__glowa { padding-bottom: .55rem; }
-  .statystyki { margin-top: .55rem; gap: .35rem; }
-  .statystyki dt { font-size: .62rem; }
-  .statystyki dd { font-size: .72rem; }
+  .podsumowanie__glowa { padding-bottom: .45rem; }
+  .rozbicie__pasek { margin-top: .55rem; height: 8px; }
+  .rozbicie__tabela { margin-top: .35rem; }
+  .rozbicie__rzad th, .rozbicie__kwota, .rozbicie__dodatki { padding-block: .22rem; }
+  /* na telefonie sumę razem pokazuje już wielka liczba u góry karty */
+  .rozbicie__rzad--razem, .rozbicie__nota { display: none; }
+  .porownanie { margin-top: .5rem; padding-top: .45rem; }
   .podsumowanie__akcje { margin-top: .6rem; }
   .podsumowanie__akcje .przycisk { min-height: 42px; }
   .porownanie { margin-top: .6rem; padding-top: .5rem; }

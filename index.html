@@ -63,7 +63,7 @@
     <section class="arkusz" aria-labelledby="tyt-banknoty">
       <header class="arkusz__glowa">
         <h2 id="tyt-banknoty" class="arkusz__tytul">Banknoty</h2>
-        <p class="arkusz__meta" id="meta-banknoty">0 szt. · 0,00 zł</p>
+        <p class="arkusz__meta"><span class="arkusz__szt" id="szt-banknoty">0 szt.</span><span class="arkusz__kropka" aria-hidden="true">·</span><span class="arkusz__kwota" id="meta-banknoty">0,00 zł</span></p>
       </header>
       <ol class="wiersze" id="lista-banknoty"></ol>
     </section>
@@ -71,7 +71,7 @@
     <section class="arkusz" aria-labelledby="tyt-monety">
       <header class="arkusz__glowa">
         <h2 id="tyt-monety" class="arkusz__tytul">Monety</h2>
-        <p class="arkusz__meta" id="meta-monety">0 szt. · 0,00 zł</p>
+        <p class="arkusz__meta"><span class="arkusz__szt" id="szt-monety">0 szt.</span><span class="arkusz__kropka" aria-hidden="true">·</span><span class="arkusz__kwota" id="meta-monety">0,00 zł</span></p>
       </header>
       <ol class="wiersze" id="lista-monety"></ol>
     </section>
@@ -84,20 +84,35 @@
         <p class="podsumowanie__suma" id="suma" aria-live="polite">0,00 zł</p>
       </div>
 
-      <dl class="statystyki">
-        <div class="statystyki__poz">
-          <dt>Banknoty</dt>
-          <dd id="stat-banknoty">0 szt.</dd>
+      <div class="rozbicie">
+        <div class="rozbicie__pasek" id="pasek" role="img" aria-label="Udział banknotów i monet w sumie">
+          <span class="rozbicie__udzial rozbicie__udzial--banknoty" id="pasek-banknoty"></span>
+          <span class="rozbicie__udzial rozbicie__udzial--monety" id="pasek-monety"></span>
         </div>
-        <div class="statystyki__poz">
-          <dt>Monety</dt>
-          <dd id="stat-monety">0 szt.</dd>
-        </div>
-        <div class="statystyki__poz">
-          <dt>Nominałów</dt>
-          <dd id="stat-nominaly">0</dd>
-        </div>
-      </dl>
+
+        <table class="rozbicie__tabela">
+          <caption class="tylko-dla-czytnika">Ile złotych w banknotach, ile w monetach</caption>
+          <tbody>
+            <tr class="rozbicie__rzad" data-grupa="banknoty">
+              <th scope="row"><span class="kropka" aria-hidden="true"></span>W banknotach</th>
+              <td class="rozbicie__kwota" id="kwota-banknoty">0,00 zł</td>
+              <td class="rozbicie__dodatki" id="dod-banknoty">0 szt.</td>
+            </tr>
+            <tr class="rozbicie__rzad" data-grupa="monety">
+              <th scope="row"><span class="kropka" aria-hidden="true"></span>W monetach</th>
+              <td class="rozbicie__kwota" id="kwota-monety">0,00 zł</td>
+              <td class="rozbicie__dodatki" id="dod-monety">0 szt.</td>
+            </tr>
+            <tr class="rozbicie__rzad rozbicie__rzad--razem">
+              <th scope="row">Razem</th>
+              <td class="rozbicie__kwota" id="kwota-razem">0,00 zł</td>
+              <td class="rozbicie__dodatki" id="dod-razem">0 szt.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="rozbicie__nota">Policzone nominały: <span id="stat-nominaly">0</span> z 15</p>
+      </div>
 
       <div class="podsumowanie__akcje">
         <button type="button" class="przycisk przycisk--glowny" id="btn-kopiuj">Kopiuj zestawienie</button>

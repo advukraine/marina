@@ -60,14 +60,32 @@
     return Math.round(liczba * 100);
   }
 
+  /** Udział kwoty w sumie, opisany po ludzku: 0,3% nie ma udawać 0%. */
+  function udzial(czesc, calosc) {
+    if (calosc <= 0 || czesc <= 0) return '0%';
+    var p = czesc / calosc * 100;
+    if (p < 0.5) return 'poniżej 1%';
+    if (p > 99.5 && czesc < calosc) return 'ponad 99%';
+    return Math.round(p) + '%';
+  }
+
   var el = {
     listaBanknoty: document.getElementById('lista-banknoty'),
     listaMonety: document.getElementById('lista-monety'),
     metaBanknoty: document.getElementById('meta-banknoty'),
     metaMonety: document.getElementById('meta-monety'),
+    sztBanknoty: document.getElementById('szt-banknoty'),
+    sztMonety: document.getElementById('szt-monety'),
     suma: document.getElementById('suma'),
-    statBanknoty: document.getElementById('stat-banknoty'),
-    statMonety: document.getElementById('stat-monety'),
+    kwotaBanknoty: document.getElementById('kwota-banknoty'),
+    kwotaMonety: document.getElementById('kwota-monety'),
+    kwotaRazem: document.getElementById('kwota-razem'),
+    dodBanknoty: document.getElementById('dod-banknoty'),
+    dodMonety: document.getElementById('dod-monety'),
+    dodRazem: document.getElementById('dod-razem'),
+    pasek: document.getElementById('pasek'),
+    paskaBanknoty: document.getElementById('pasek-banknoty'),
+    paskaMonety: document.getElementById('pasek-monety'),
     statNominaly: document.getElementById('stat-nominaly'),
     oczekiwana: document.getElementById('oczekiwana'),
     roznica: document.getElementById('roznica'),
@@ -244,11 +262,34 @@
       w.li.classList.toggle('jest-aktywny', szt > 0);
     });
 
+    var sztukRazem = s.banknotySzt + s.monetySzt;
+
     el.suma.textContent = kwota(s.razem);
-    el.metaBanknoty.textContent = s.banknotySzt + ' szt. · ' + kwota(s.banknotyGr);
-    el.metaMonety.textContent = s.monetySzt + ' szt. · ' + kwota(s.monetyGr);
-    el.statBanknoty.textContent = s.banknotySzt + ' ' + odmiana(s.banknotySzt, 'sztuka', 'sztuki', 'sztuk');
-    el.statMonety.textContent = s.monetySzt + ' ' + odmiana(s.monetySzt, 'sztuka', 'sztuki', 'sztuk');
+
+    el.sztBanknoty.textContent = s.banknotySzt + ' szt.';
+    el.sztMonety.textContent = s.monetySzt + ' szt.';
+    el.metaBanknoty.textContent = kwota(s.banknotyGr);
+    el.metaMonety.textContent = kwota(s.monetyGr);
+
+    el.kwotaBanknoty.textContent = kwota(s.banknotyGr);
+    el.kwotaMonety.textContent = kwota(s.monetyGr);
+    el.kwotaRazem.textContent = kwota(s.razem);
+
+    var udzialBanknotow = udzial(s.banknotyGr, s.razem);
+    var udzialMonet = udzial(s.monetyGr, s.razem);
+
+    el.dodBanknoty.textContent = s.banknotySzt + ' szt. · ' + udzialBanknotow;
+    el.dodMonety.textContent = s.monetySzt + ' szt. · ' + udzialMonet;
+    el.dodRazem.textContent = sztukRazem + ' ' + odmiana(sztukRazem, 'sztuka', 'sztuki', 'sztuk');
+
+    var procentBanknotow = s.razem > 0 ? (s.banknotyGr / s.razem * 100) : 0;
+    el.paskaBanknoty.style.width = procentBanknotow + '%';
+    el.paskaMonety.style.width = (s.razem > 0 ? 100 - procentBanknotow : 0) + '%';
+    el.pasek.setAttribute('aria-label', s.razem > 0
+      ? 'Banknoty: ' + kwota(s.banknotyGr) + ' (' + udzialBanknotow + '), monety: ' +
+        kwota(s.monetyGr) + ' (' + udzialMonet + ')'
+      : 'Nic jeszcze nie policzono');
+
     el.statNominaly.textContent = String(s.nominaly);
 
     if (s.razem !== poprzedniaSuma) {
@@ -311,9 +352,11 @@
       linie.push('');
     });
 
-    linie.push('RAZEM: ' + kwota(s.razem));
-    linie.push('Banknoty: ' + s.banknotySzt + ' szt. · ' + kwota(s.banknotyGr));
-    linie.push('Monety: ' + s.monetySzt + ' szt. · ' + kwota(s.monetyGr));
+    linie.push('W banknotach: ' + kwota(s.banknotyGr) + '  (' + s.banknotySzt + ' szt. · ' +
+      udzial(s.banknotyGr, s.razem) + ')');
+    linie.push('W monetach:   ' + kwota(s.monetyGr) + '  (' + s.monetySzt + ' szt. · ' +
+      udzial(s.monetyGr, s.razem) + ')');
+    linie.push('RAZEM:        ' + kwota(s.razem) + '  (' + (s.banknotySzt + s.monetySzt) + ' szt.)');
 
     if (el.oczekiwana && el.oczekiwana.value.trim() !== '') {
       var cel = naGrosze(el.oczekiwana.value);

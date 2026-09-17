@@ -10,7 +10,9 @@ Wpisujesz liczbę sztuk przy nominale — suma liczy się od razu.
 
 - **Wszystkie nominały PLN** — banknoty 500, 200, 100, 50, 20, 10 zł
   oraz monety 5, 2, 1 zł i 50, 20, 10, 5, 2, 1 gr.
-- **Liczy w locie** — wartość każdego wiersza, suma banknotów, suma monet i kwota razem.
+- **Liczy w locie** — wartość każdego wiersza oraz rozbicie kwoty: ile złotych leży
+  w banknotach, ile w monetach i ile razem, z liczbą sztuk, udziałem procentowym
+  i paskiem proporcji.
 - **Szybkie wpisywanie** — przyciski `−` / `+` oraz skróty klawiszowe:
   `Enter` (następne pole), `Shift`+`Enter` (poprzednie), `↑` / `↓` (dodaj lub odejmij sztukę),
   `Esc` (wyczyść pole).
