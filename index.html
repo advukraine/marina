@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pl" data-motyw="jasny">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kalkulator gotówki — szybkie liczenie banknotów i monet (PLN)</title>
+<meta name="description" content="Darmowy kalkulator gotówki w złotówkach. Wpisz liczbę banknotów i monet, a sumę policzymy natychmiast. Działa na telefonie, zapamiętuje wpisane sztuki.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f3efe4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131210" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23164f3c'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='36' font-weight='700' fill='%23f3efe4' text-anchor='middle'%3Ez%C5%82%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Martian+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script>
+  (function () {
+    try {
+      var z = localStorage.getItem('kasa.motyw');
+      if (z === 'jasny' || z === 'ciemny') { document.documentElement.dataset.motyw = z; return; }
+    } catch (e) {}
+    document.documentElement.dataset.motyw =
+      window.matchMedia('(prefers-color-scheme: dark)').matches ? 'ciemny' : 'jasny';
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#kalkulator">Przejdź do kalkulatora</a>
+
+<div class="ziarno" aria-hidden="true"></div>
+
+<div class="wydruk-glowa" aria-hidden="true">
+  <strong>Kalkulator gotówki</strong>
+  <span id="wydruk-data"></span>
+</div>
+
+<header class="pasek">
+  <div class="marka">
+    <span class="marka__znak" aria-hidden="true">zł</span>
+    <div class="marka__tekst">
+      <h1 class="marka__nazwa">Kalkulator gotówki</h1>
+      <p class="marka__opis">Policz banknoty i monety — szybko i bez pomyłek</p>
+    </div>
+  </div>
+  <div class="pasek__narzedzia">
+    <button type="button" class="przycisk przycisk--duch" id="btn-drukuj" title="Drukuj zestawienie">
+      <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18"><path d="M7 9V3h10v6M7 19H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 15h10v6H7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <span>Drukuj</span>
+    </button>
+    <button type="button" class="przycisk przycisk--duch przycisk--ikona" id="btn-motyw" aria-label="Przełącz motyw" title="Przełącz motyw jasny / ciemny">
+      <svg class="ikona-slonce" viewBox="0 0 24 24" aria-hidden="true" width="18" height="18"><circle cx="12" cy="12" r="4.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v2.6M12 19.4V22M2 12h2.6M19.4 12H22M4.9 4.9l1.9 1.9M17.2 17.2l1.9 1.9M19.1 4.9l-1.9 1.9M6.8 17.2l-1.9 1.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <svg class="ikona-ksiezyc" viewBox="0 0 24 24" aria-hidden="true" width="18" height="18"><path d="M20 14.2A8.4 8.4 0 0 1 9.8 4 8.4 8.4 0 1 0 20 14.2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<noscript>
+  <p class="noscript">Ten kalkulator potrzebuje włączonego JavaScriptu, aby liczyć sumę.</p>
+</noscript>
+
+<main id="kalkulator" class="uklad">
+  <div class="arkusze">
+    <section class="arkusz" aria-labelledby="tyt-banknoty">
+      <header class="arkusz__glowa">
+        <h2 id="tyt-banknoty" class="arkusz__tytul">Banknoty</h2>
+        <p class="arkusz__meta" id="meta-banknoty">0 szt. · 0,00 zł</p>
+      </header>
+      <ol class="wiersze" id="lista-banknoty"></ol>
+    </section>
+
+    <section class="arkusz" aria-labelledby="tyt-monety">
+      <header class="arkusz__glowa">
+        <h2 id="tyt-monety" class="arkusz__tytul">Monety</h2>
+        <p class="arkusz__meta" id="meta-monety">0 szt. · 0,00 zł</p>
+      </header>
+      <ol class="wiersze" id="lista-monety"></ol>
+    </section>
+  </div>
+
+  <aside class="podsumowanie" aria-label="Podsumowanie">
+    <div class="podsumowanie__karta">
+      <div class="podsumowanie__glowa">
+        <p class="podsumowanie__etykieta">Razem</p>
+        <p class="podsumowanie__suma" id="suma" aria-live="polite">0,00 zł</p>
+      </div>
+
+      <dl class="statystyki">
+        <div class="statystyki__poz">
+          <dt>Banknoty</dt>
+          <dd id="stat-banknoty">0 szt.</dd>
+        </div>
+        <div class="statystyki__poz">
+          <dt>Monety</dt>
+          <dd id="stat-monety">0 szt.</dd>
+        </div>
+        <div class="statystyki__poz">
+          <dt>Nominałów</dt>
+          <dd id="stat-nominaly">0</dd>
+        </div>
+      </dl>
+
+      <div class="podsumowanie__akcje">
+        <button type="button" class="przycisk przycisk--glowny" id="btn-kopiuj">Kopiuj zestawienie</button>
+        <button type="button" class="przycisk przycisk--cichy" id="btn-wyczysc">Wyczyść</button>
+      </div>
+
+      <details class="porownanie" id="porownanie">
+        <summary>Porównaj z kwotą <span class="porownanie__znacznik" aria-hidden="true"></span></summary>
+        <div class="porownanie__tresc">
+          <label class="pole">
+            <span class="pole__etykieta">Kwota oczekiwana</span>
+            <input type="text" id="oczekiwana" class="pole__input" inputmode="decimal" autocomplete="off" placeholder="np. 1500,00">
+          </label>
+          <p class="porownanie__wynik" id="roznica">Wpisz kwotę, aby zobaczyć różnicę.</p>
+        </div>
+      </details>
+    </div>
+  </aside>
+</main>
+
+<footer class="stopka">
+  <p class="wskazowka">
+    <strong>Skróty:</strong> <kbd>Enter</kbd> — następne pole, <kbd>Shift</kbd>+<kbd>Enter</kbd> — poprzednie,
+    <kbd>↑</kbd>/<kbd>↓</kbd> — dodaj lub odejmij sztukę, <kbd>Esc</kbd> — wyczyść pole.
+  </p>
+  <p class="stopka__nota">Wpisane sztuki zapisują się w tej przeglądarce — po odświeżeniu strony nic nie ginie.</p>
+</footer>
+
+<div class="komunikat" id="komunikat" role="status" aria-live="polite"></div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
