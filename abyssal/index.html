@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#7fd4e8">
+<meta name="description" content="A scroll-driven descent through the five layers of the open ocean, from the sunlit surface to the hadal trenches.">
+<title>ABYSSAL — a descent through the open ocean</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=JetBrains+Mono:wght@200..700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>
+/* Bootstrap. Runs before first paint so no state is ever painted twice.
+   1. Feature-detects CSS scroll-driven animations with CSS.supports.
+   2. Loads main.js as an ES module — but only over http(s). Module scripts are
+      fetched with CORS and a file:// document has an opaque origin, so the
+      browser refuses them. Skipping the request keeps the console clean when
+      the page is opened straight off disk; the CSS-only path still runs the
+      whole experience there. */
+(function () {
+  var root = document.documentElement;
+  root.className = root.className.replace('no-js', 'js');
+  var sdt = !!(window.CSS && CSS.supports && CSS.supports('animation-timeline', 'scroll()'));
+  root.classList.add(sdt ? 'sdt' : 'no-sdt');
+  if (location.protocol === 'file:') { return; }
+  root.classList.add('js-active');
+  var s = document.createElement('script');
+  s.type = 'module';
+  s.src = 'main.js';
+  document.head.appendChild(s);
+  window.setTimeout(function () {
+    if (!root.classList.contains('main-ready')) { root.classList.remove('js-active'); }
+  }, 4000);
+})();
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#zone-epipelagic">Skip to the descent</a>
+
+<!-- Fixed water column. Its two colours interpolate across the scroll. -->
+<div class="sea" aria-hidden="true"></div>
+
+<!-- Sunlight shafts. Faded to nothing by 1000 m. -->
+<div class="shafts" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+<!-- Film grain. Decorative, never interactive. -->
+<svg class="grain" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <filter id="grain-filter" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="4" stitchTiles="stitch" result="noise"/>
+    <feColorMatrix in="noise" type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" fill="#fff" filter="url(#grain-filter)"/>
+</svg>
+
+<header class="hero">
+  <p class="hero__eyebrow">0 m &middot; sea level</p>
+  <h1 class="hero__title">Abyssal</h1>
+  <p class="hero__lede">A descent through the five layers of the open ocean, from the last of the sunlight to the floor of the deepest trench.</p>
+  <p class="hero__cue"><span class="hero__cue-rule" aria-hidden="true"></span>Scroll to descend</p>
+</header>
+
+<nav class="rail" aria-label="Depth zones">
+  <ol class="rail__list">
+    <li><a class="rail__link" href="#zone-epipelagic"><span class="rail__dot" aria-hidden="true"></span><span class="rail__label">Epipelagic <b>0–200 m</b></span></a></li>
+    <li><a class="rail__link" href="#zone-mesopelagic"><span class="rail__dot" aria-hidden="true"></span><span class="rail__label">Mesopelagic <b>200–1000 m</b></span></a></li>
+    <li><a class="rail__link" href="#zone-bathypelagic"><span class="rail__dot" aria-hidden="true"></span><span class="rail__label">Bathypelagic <b>1000–4000 m</b></span></a></li>
+    <li><a class="rail__link" href="#zone-abyssopelagic"><span class="rail__dot" aria-hidden="true"></span><span class="rail__label">Abyssopelagic <b>4000–6000 m</b></span></a></li>
+    <li><a class="rail__link" href="#zone-hadal"><span class="rail__dot" aria-hidden="true"></span><span class="rail__label">Hadal <b>6000–11000 m</b></span></a></li>
+  </ol>
+</nav>
+
+<main>
+
+  <section class="zone" id="zone-epipelagic" data-zone="epipelagic" aria-labelledby="h-epipelagic">
+    <div class="zone__life" aria-hidden="false">
+      <div class="creature" style="--x:76%;--y:11%;--w:clamp(5rem,13vw,11rem);--dur:44s;--delay:-3s;--sway:1">
+        <svg id="sil-moon-jelly" viewBox="0 0 120 140" role="img" aria-labelledby="t-jelly"><title id="t-jelly">Silhouette of a moon jelly</title>
+          <path d="M10 62C10 24 44 8 60 8s50 16 50 54c-6 8-14 10-22 4-8 8-20 10-28 4-8 6-20 4-28-4-8 6-16 4-22-4Z"/>
+          <path d="M44 70c-2 18 4 34-4 56-1 4-5 5-4 1 6-21 2-37 4-57Z"/>
+          <path d="M56 72c-1 20 2 36-4 58-1 4-5 4-4 0 6-22 3-38 4-58Z"/>
+          <path d="M68 72c1 20-2 36 4 58 1 4 5 4 4 0-6-22-3-38-4-58Z"/>
+          <path d="M80 70c2 18-4 34 4 56 1 4 5 5 4 1-6-21-2-37-4-57Z"/>
+          <g fill="none" stroke="currentColor" stroke-width="1.2" opacity=".65">
+            <path d="M14 64c5 20 0 36 7 54"/><path d="M30 68c3 22-2 36 3 52"/>
+            <path d="M90 68c-3 22 2 36-3 52"/><path d="M106 64c-5 20 0 36-7 54"/>
+          </g>
+        </svg>
+      </div>
+      <div class="creature" style="--x:6%;--y:76%;--w:clamp(8rem,22vw,18rem);--dur:52s;--delay:-19s;--sway:-1">
+        <svg id="sil-school" viewBox="0 0 210 120" role="img" aria-labelledby="t-school"><title id="t-school">Silhouettes of a school of small fish</title>
+          <g fill-rule="evenodd">
+            <path transform="translate(0,46)" d="M0 13C8 3 30-1 44 5L58 0l-9 13 9 13-14-5C30 27 8 23 0 13Zm10-2a2.4 2.4 0 1 0 0-.1Z"/>
+            <path transform="translate(58,8) scale(.82)" d="M0 13C8 3 30-1 44 5L58 0l-9 13 9 13-14-5C30 27 8 23 0 13Zm10-2a2.4 2.4 0 1 0 0-.1Z"/>
+            <path transform="translate(52,80) scale(.74)" d="M0 13C8 3 30-1 44 5L58 0l-9 13 9 13-14-5C30 27 8 23 0 13Zm10-2a2.4 2.4 0 1 0 0-.1Z"/>
+            <path transform="translate(112,52) scale(.9)" d="M0 13C8 3 30-1 44 5L58 0l-9 13 9 13-14-5C30 27 8 23 0 13Zm10-2a2.4 2.4 0 1 0 0-.1Z"/>
+            <path transform="translate(120,14) scale(.66)" d="M0 13C8 3 30-1 44 5L58 0l-9 13 9 13-14-5C30 27 8 23 0 13Zm10-2a2.4 2.4 0 1 0 0-.1Z"/>
+            <path transform="translate(150,88) scale(.6)" d="M0 13C8 3 30-1 44 5L58 0l-9 13 9 13-14-5C30 27 8 23 0 13Zm10-2a2.4 2.4 0 1 0 0-.1Z"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div class="zone__frame">
+      <p class="zone__range"><span class="zone__depth">0&ndash;200</span> <abbr title="metres">m</abbr></p>
+      <h2 class="zone__title" id="h-epipelagic">Epipelagic</h2>
+      <p class="zone__tagline">The Sunlit Zone</p>
+      <p class="zone__epigraph">Where the sea still remembers the sky.</p>
+      <p class="zone__copy">Sunlight reaches this far and no further with any real strength. Phytoplankton drift here in numbers beyond counting, turning light into the first link of almost every food chain in the sea. The water is warm, wind-stirred and blue. Nearly all of the ocean&rsquo;s photosynthesis, and most of the fish anyone has ever seen, belong to this thin bright skin.</p>
+    </div>
+  </section>
+
+  <section class="zone" id="zone-mesopelagic" data-zone="mesopelagic" aria-labelledby="h-mesopelagic">
+    <div class="zone__life">
+      <div class="creature" style="--x:8%;--y:13%;--w:clamp(7rem,18vw,15rem);--dur:58s;--delay:-11s;--sway:1">
+        <svg id="sil-lanternfish" viewBox="0 0 160 60" role="img" aria-labelledby="t-lantern"><title id="t-lantern">Silhouette of a lanternfish</title>
+          <path fill-rule="evenodd" d="M4 30C14 12 44 4 76 8c28 3 44 12 54 22l22-16-8 16 8 16-22-16c-10 10-26 19-54 22C44 56 14 48 4 30Zm22-5a5 5 0 1 0 0-.1ZM40 44a2.6 2.6 0 1 0 0-.1Zm14 3a2.6 2.6 0 1 0 0-.1Zm14 2a2.6 2.6 0 1 0 0-.1Zm14 1a2.6 2.6 0 1 0 0-.1Zm14-1a2.6 2.6 0 1 0 0-.1Zm14-2a2.6 2.6 0 1 0 0-.1Z"/>
+          <path d="M60 9c16-1 30 1 42 6-14-1-28-3-42-6Z"/>
+        </svg>
+      </div>
+      <div class="creature" style="--x:74%;--y:70%;--w:clamp(5rem,12vw,10rem);--dur:48s;--delay:-27s;--sway:-1">
+        <svg id="sil-squid" viewBox="0 0 120 200" role="img" aria-labelledby="t-squid"><title id="t-squid">Silhouette of a squid</title>
+          <path d="M60 4c12 20 20 48 20 74 0 14-10 22-20 22s-20-8-20-22c0-26 8-54 20-74Z"/>
+          <path d="M60 10c14 6 32 24 36 40-10-2-22-12-34-24Z"/><path d="M60 10c-14 6-32 24-36 40 10-2 22-12 34-24Z"/>
+          <path d="M46 98c-2 18-8 34-16 48-2 4-6 3-5-1 8-16 13-32 13-47Z"/>
+          <path d="M53 100c-3 20-4 38-9 54-1 4-5 3-5-1 5-18 8-35 8-53Z"/>
+          <path d="M60 101c0 20 1 38-1 56 0 4-5 4-5 0 2-18 1-36 1-56Z"/>
+          <path d="M67 100c3 20 4 38 9 54 1 4 5 3 5-1-5-18-8-35-8-53Z"/>
+          <path d="M74 98c2 18 8 34 16 48 2 4 6 3 5-1-8-16-13-32-13-47Z"/>
+          <path d="M50 99c-4 30-14 58-26 82-2 4 3 6 5 2 14-26 23-54 26-84Z"/>
+          <path d="M70 99c4 30 14 58 26 82 2 4-3 6-5 2-14-26-23-54-26-84Z"/>
+          <path d="M22 178c4-4 9-3 11 2 2 5-1 10-6 10s-8-7-5-12Z"/><path d="M98 178c-4-4-9-3-11 2-2 5 1 10 6 10s8-7 5-12Z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="zone__frame">
+      <p class="zone__range"><span class="zone__depth">200&ndash;1000</span> <abbr title="metres">m</abbr></p>
+      <h2 class="zone__title" id="h-mesopelagic">Mesopelagic</h2>
+      <p class="zone__tagline">The Twilight Zone</p>
+      <p class="zone__epigraph">The last blue light, and the first living light.</p>
+      <p class="zone__copy">Light thins to a blue rumour here: enough to see by, never enough to grow by. Temperature falls away through the thermocline and the colour drains out of everything. Each night an enormous population of lanternfish, squid and shrimp rises toward the surface to feed, then sinks again before dawn &mdash; the largest migration of animals on Earth, repeated daily.</p>
+    </div>
+  </section>
+
+  <section class="zone" id="zone-bathypelagic" data-zone="bathypelagic" aria-labelledby="h-bathypelagic">
+    <div class="zone__life">
+      <div class="creature creature--glow" style="--x:70%;--y:12%;--w:clamp(8rem,20vw,16rem);--dur:62s;--delay:-7s;--sway:-1">
+        <svg id="sil-anglerfish" viewBox="0 0 190 130" role="img" aria-labelledby="t-angler"><title id="t-angler">Silhouette of an anglerfish with its lure</title>
+          <path d="M112 24c34 4 54 28 52 56s-30 42-60 37c-24-5-42-16-52-30l44-9-44-11c8-24 32-47 60-43Z"/>
+          <path d="M58 70l8-1 2 7Zm14-2l9-2 3 8Zm14-3l9-2 4 8ZM58 82l9 2-4 7Zm15 3l9 3-4 7Zm15 4l9 2-5 7Z"/>
+          <path d="M164 60l20-18-6 30 6 30-20-18Z"/>
+          <path d="M120 26c-6-18-22-26-38-22 9 3 20 10 26 24Z"/>
+          <circle class="esca" cx="80" cy="5" r="6"/>
+        </svg>
+      </div>
+      <div class="creature creature--glow" style="--x:4%;--y:74%;--w:clamp(9rem,26vw,21rem);--dur:70s;--delay:-33s;--sway:1">
+        <svg id="sil-gulper-eel" viewBox="0 0 250 100" role="img" aria-labelledby="t-gulper"><title id="t-gulper">Silhouette of a gulper eel</title>
+          <path d="M10 46C26 18 56 10 82 22c28 12 74 28 118 40 18 4 30 8 36 12-6 3-22 2-38-2-38-10-76-20-102-24-10 14-34 24-54 20C22 64 10 56 10 46Z"/>
+          <circle cx="238" cy="75" r="4"/>
+          <path d="M84 24c22 6 44 14 66 22-24-4-46-12-66-22Z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="zone__frame">
+      <p class="zone__range"><span class="zone__depth">1000&ndash;4000</span> <abbr title="metres">m</abbr></p>
+      <h2 class="zone__title" id="h-bathypelagic">Bathypelagic</h2>
+      <p class="zone__tagline">The Midnight Zone</p>
+      <p class="zone__epigraph">No sunlight has ever reached this far.</p>
+      <p class="zone__copy">Beyond a thousand metres the sun is simply gone, and no amount of waiting will bring it back. The water sits a few degrees above freezing; the pressure has already passed a hundred atmospheres. Food arrives from above as marine snow. What light exists is made by the animals themselves &mdash; an anglerfish&rsquo;s lure, the flare of a startled jelly.</p>
+    </div>
+  </section>
+
+  <section class="zone" id="zone-abyssopelagic" data-zone="abyssopelagic" aria-labelledby="h-abyssopelagic">
+    <div class="zone__life">
+      <div class="creature creature--glow" style="--x:70%;--y:16%;--w:clamp(7rem,17vw,14rem);--dur:66s;--delay:-13s;--sway:1">
+        <svg id="sil-dumbo" viewBox="0 0 140 120" role="img" aria-labelledby="t-dumbo"><title id="t-dumbo">Silhouette of a dumbo octopus</title>
+          <path fill-rule="evenodd" d="M70 14c22 0 36 16 36 34 0 14-6 28-14 38 10-2 18-8 24-16 2 12 8 22 18 28-12-2-22-8-30-16-2 12-8 22-16 30-2-10-2-20-2-30-4 6-12 6-16 0 0 10 0 20-2 30-8-8-14-18-16-30-8 8-18 14-30 16 10-6 16-16 18-28 6 8 14 14 24 16-8-10-14-24-14-38 0-18 14-34 36-34Zm-12 34a4.6 4.6 0 1 0 0-.1Zm24 0a4.6 4.6 0 1 0 0-.1Z"/>
+          <path d="M34 34C20 26 6 28 0 38c10 6 24 8 34 4Z"/><path d="M106 34c14-8 28-6 34 4-10 6-24 8-34 4Z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="zone__frame">
+      <p class="zone__range"><span class="zone__depth">4000&ndash;6000</span> <abbr title="metres">m</abbr></p>
+      <h2 class="zone__title" id="h-abyssopelagic">Abyssopelagic</h2>
+      <p class="zone__tagline">The Abyss</p>
+      <p class="zone__epigraph">The ocean&rsquo;s true condition: cold, dark and enormous.</p>
+      <p class="zone__copy">Much of the seafloor lies at these depths: flat abyssal plains under kilometres of black water, close to freezing, and never anything but dark. Life here is sparse and unhurried &mdash; it waits, it scavenges, it spends energy carefully. Above the sediment, dumbo octopuses row along on ear-like fins, the deepest-living octopuses known to us.</p>
+    </div>
+  </section>
+
+  <section class="zone" id="zone-hadal" data-zone="hadal" aria-labelledby="h-hadal">
+    <div class="zone__life">
+      <div class="creature creature--glow" style="--x:8%;--y:15%;--w:clamp(8rem,21vw,17rem);--dur:74s;--delay:-21s;--sway:-1">
+        <svg id="sil-snailfish" viewBox="0 0 200 80" role="img" aria-labelledby="t-snailfish"><title id="t-snailfish">Silhouette of a hadal snailfish</title>
+          <path fill-rule="evenodd" d="M12 40C12 22 26 12 46 12c24 0 46 8 68 20 28 15 56 25 74 29 4 1 4 4 0 5-20-1-48-8-74-20-22-10-44 4-68 4C26 50 12 46 12 40Zm16-8a4 4 0 1 0 0-.1Z"/>
+          <path d="M50 14c24 0 46 8 66 20-16-10-40-16-66-18Z"/>
+          <path d="M52 50c22 0 42-6 58-14-14 12-36 18-58 16Z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="zone__frame">
+      <p class="zone__range"><span class="zone__depth">6000&ndash;11000</span> <abbr title="metres">m</abbr></p>
+      <h2 class="zone__title" id="h-hadal">Hadal</h2>
+      <p class="zone__tagline">The Trenches</p>
+      <p class="zone__epigraph">Named for Hades. Found only in trenches.</p>
+      <p class="zone__copy">Below six thousand metres the ocean stops being a basin and becomes a set of trenches: narrow, steep, and cut off from one another. At the bottom of the deepest of them the pressure passes a thousand atmospheres. Snailfish and swarms of amphipods live there anyway, in the deepest water anyone has reached.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="colophon">
+  <div class="colophon__inner">
+    <h2 class="colophon__title">The floor</h2>
+    <p class="colophon__copy">You have reached the bottom of the scale. Everything above you is water.</p>
+    <p class="colophon__note">Depth readings follow the section you are looking at. Pressure uses the standard approximation for seawater: one atmosphere at the surface, and one more for every ten metres of descent.</p>
+    <p class="colophon__note">Built with hand-authored SVG and CSS scroll-driven animation. No images, no libraries.</p>
+  </div>
+</footer>
+
+<aside class="meter" aria-label="Depth readout">
+  <p class="meter__zone"><span class="u-vh">Current zone: </span><span data-meter-zone>Epipelagic</span></p>
+  <p class="meter__row"><span class="meter__num" data-meter-depth></span><span class="meter__unit">m</span></p>
+  <p class="meter__row meter__row--sub"><span class="meter__num meter__num--press" data-meter-pressure></span><span class="meter__unit">atm</span></p>
+  <span class="meter__gauge" aria-hidden="true"><i class="meter__needle"></i></span>
+</aside>
+
+</body>
+</html>

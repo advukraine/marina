@@ -1,0 +1,466 @@
+/* ==========================================================================
+   ABYSSAL — stylesheet
+
+   Scroll geometry. Every keyframe percentage below is derived from it:
+     hero 100svh + 5 zones x 180svh + colophon 100svh = 1100svh document
+     scrollable range = 1100 - 100 (viewport) = 1000svh
+     the reader's eye = middle of the viewport = scrollTop + 50svh
+     zone N top    -> (50 + 180(N-1)) / 1000  ->  5  23  41  59  77 %
+     zone N centre -> (180N - 40)    / 1000   -> 14  32  50  68  86 %
+     seafloor (11000 m) -> 95%
+
+   The water colour HOLDS at each zone's exact value for +/-5% of scroll either
+   side of that zone's centre and only interpolates in the gaps. Zone text is
+   only ever fully opaque inside that hold, so the contrast ratio measured
+   against the flat colour is the ratio the reader actually gets.
+   ========================================================================== */
+
+@property --sea-a   { syntax: '<color>';   inherits: false; initial-value: #7fd4e8; }
+@property --sea-b   { syntax: '<color>';   inherits: false; initial-value: #5ec0dc; }
+@property --shaft   { syntax: '<number>';  inherits: false; initial-value: 0.6; }
+@property --dive    { syntax: '<number>';  inherits: true;  initial-value: 0; }
+@property --depth-n { syntax: '<integer>'; inherits: false; initial-value: 0; }
+@property --press-n { syntax: '<integer>'; inherits: false; initial-value: 1; }
+
+:root {
+  --font-display: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Palatino,
+                  Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo,
+               Consolas, 'Liberation Mono', monospace;
+  --bio-mint: #7ef9d2;
+  --bio-violet: #b28dff;
+  --hud: #030e16;          /* instrument surface — constant over every zone */
+  --hud-ink: #dff0f7;
+  --hud-dim: #8fb3c4;
+  --gutter: clamp(1rem, 5vw, 5rem);
+  --ease-out: cubic-bezier(.16, .84, .28, 1);
+}
+
+/* --- base ----------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: #000206;            /* only ever seen behind the fixed water */
+  color: var(--hud-ink);
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, p, ol, li { margin: 0; }
+ol { padding: 0; list-style: none; }
+abbr[title] { text-decoration: none; }
+a:focus-visible { outline: 2px solid var(--bio-mint); outline-offset: 3px; border-radius: 3px; }
+
+.u-vh {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  border: 0; overflow: hidden; white-space: nowrap; clip-path: inset(50%);
+}
+.skip-link {
+  position: fixed; top: .75rem; left: .75rem; z-index: 100;
+  transform: translateY(-180%);
+  padding: .7rem 1.1rem;
+  background: var(--hud); color: var(--hud-ink);
+  font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em;
+  text-decoration: none; border-radius: 3px;
+  border: 1px solid color-mix(in oklab, var(--hud-ink) 30%, transparent);
+  transition: transform .25s var(--ease-out);
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
+/* --- fixed layers --------------------------------------------------------- */
+
+.sea {
+  position: fixed; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, var(--sea-a) 0%, var(--sea-b) 100%);
+}
+.shafts {
+  position: fixed; inset: 0; z-index: 1;
+  overflow: clip;                 /* clip, not hidden: creates no scrollport */
+  opacity: var(--shaft);
+  pointer-events: none;
+}
+.shafts i {
+  position: absolute; top: -30%; height: 170%;
+  background: linear-gradient(180deg, rgba(255,255,255,.5) 0%,
+              rgba(255,255,255,.16) 42%, rgba(255,255,255,0) 78%);
+  filter: blur(22px);
+  transform-origin: 50% 0;
+}
+.shafts i:nth-child(1) { left:  2%; width: 10vw; rotate:  7deg; opacity: .85; }
+.shafts i:nth-child(2) { left: 19%; width: 16vw; rotate: 12deg; opacity: .6; }
+.shafts i:nth-child(3) { left: 38%; width:  8vw; rotate:  4deg; opacity: .95; }
+.shafts i:nth-child(4) { left: 55%; width: 18vw; rotate: 14deg; opacity: .5; }
+.shafts i:nth-child(5) { left: 73%; width: 11vw; rotate:  9deg; opacity: .8; }
+.shafts i:nth-child(6) { left: 88%; width: 14vw; rotate: 16deg; opacity: .55; }
+.grain {
+  position: fixed; inset: 0; z-index: 90;
+  width: 100%; height: 100%;
+  opacity: .05;
+  pointer-events: none;
+}
+
+/* --- hero ----------------------------------------------------------------- */
+
+.hero {
+  position: relative; z-index: 2;
+  min-height: 100vh; min-height: 100svh;
+  display: grid; align-content: center; justify-items: start;
+  gap: clamp(1.1rem, 2.6vw, 2.25rem);
+  padding: 0 var(--gutter);
+  overflow: clip;
+  color: #05222e;                                   /* 9.79:1 on #7fd4e8 */
+}
+.hero__eyebrow, .hero__cue {
+  display: flex; align-items: center; gap: .8rem;
+  font-family: var(--font-mono); font-size: clamp(.68rem, 1.1vw, .8rem);
+  font-weight: 500; letter-spacing: .22em; text-transform: uppercase;
+  color: #0c3f52;                                   /* 6.75:1 on #7fd4e8 */
+}
+.hero__cue-rule { width: clamp(2rem, 6vw, 5rem); height: 1px; background: currentColor; }
+.hero__title {
+  font-size: clamp(4rem, 19vw, 15rem);
+  font-weight: 300; line-height: .86; letter-spacing: -.045em;
+  padding-bottom: .06em;            /* the descender overshoots line-height .86 */
+  hyphens: auto; overflow-wrap: break-word;
+}
+.hero__lede {
+  max-width: 34ch;
+  font-size: clamp(1.05rem, 2.2vw, 1.5rem);
+  line-height: 1.5; color: #0a3546; text-wrap: balance;
+}
+
+/* --- rail navigation ------------------------------------------------------ */
+
+/* Narrow: a horizontal strip along the top, clear of the vertically centred
+   type. Wide: a vertical rail at the left, with the content gutter widened to
+   match so the rail can never sit on the text. */
+.rail {
+  position: fixed; z-index: 80;
+  top: max(.75rem, env(safe-area-inset-top)); left: 50%;
+  translate: -50% 0;
+}
+.rail__list {
+  display: grid; grid-auto-flow: column; gap: .55rem;
+  padding: .5rem .35rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--hud) 72%, transparent);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.rail__link {
+  display: flex; align-items: center; gap: .7rem;
+  padding: .3rem .5rem; border-radius: 999px;
+  text-decoration: none; color: var(--hud-dim);
+}
+.rail__dot {
+  flex: none; width: 9px; height: 9px; border-radius: 50%;
+  border: 1px solid currentColor;
+  background: color-mix(in oklab, currentColor 18%, transparent);
+  transition: background-color .3s var(--ease-out), scale .3s var(--ease-out);
+}
+/* Collapsed by default at every width so the rail can never sit on the type.
+   inline-block is required: max-width does nothing to a non-replaced inline. */
+.rail__label {
+  display: inline-block; max-width: 0; overflow: hidden; white-space: nowrap;
+  opacity: 0;
+  font-family: var(--font-mono); font-size: .68rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  transition: max-width .4s var(--ease-out), opacity .3s var(--ease-out);
+}
+.rail__label b { font-weight: 400; opacity: .62; }
+.rail__link:hover, .rail__link:focus-visible,
+.rail__link[aria-current='true'] { color: var(--hud-ink); }
+.rail__link:hover .rail__dot, .rail__link:focus-visible .rail__dot,
+.rail__link[aria-current='true'] .rail__dot { background: currentColor; }
+.rail__link:hover .rail__dot, .rail__link:focus-visible .rail__dot { scale: 1.25; }
+.rail__link:hover .rail__label,
+.rail__link:focus-visible .rail__label { max-width: 24ch; opacity: 1; }
+@media (min-width: 48rem) {
+  .rail { top: 50%; left: max(1rem, env(safe-area-inset-left)); translate: 0 -50%; }
+  .rail__list { grid-auto-flow: row; }
+  .hero, .zone, .colophon { padding-left: calc(var(--gutter) + 3.25rem); }
+}
+
+/* --- zones ---------------------------------------------------------------- */
+
+.zone {
+  position: relative; z-index: 2;
+  min-height: 180vh; min-height: 180svh;
+  display: grid; place-items: center;
+  padding: 0 var(--gutter);
+  overflow: clip;
+  color: var(--ink);
+}
+/* Contrast against each zone's own --sea, measured: body >= 9.7:1,
+   metadata >= 6.4:1, epigraph >= 7.7:1, accents >= 6.7:1. */
+.zone[data-zone='epipelagic']    { --sea:#7fd4e8; --ink:#05222e; --meta:#0c3f52; --epi:#0a3546; --life:#0a3546; --accent:transparent; }
+.zone[data-zone='mesopelagic']   { --sea:#0d3a52; --ink:#e4f4fa; --meta:#b4d6e3; --epi:#bfe0ec; --life:#2d6d8c; --accent:transparent; }
+.zone[data-zone='bathypelagic']  { --sea:#061c2c; --ink:#dff0f7; --meta:#8fb3c4; --epi:#b6d8e6; --life:#1b4a63; --accent:var(--bio-mint); }
+.zone[data-zone='abyssopelagic'] { --sea:#020a12; --ink:#d8ecf4; --meta:#88aabb; --epi:#aed2e1; --life:#153b52; --accent:var(--bio-violet); }
+.zone[data-zone='hadal']         { --sea:#000206; --ink:#d2e8f2; --meta:#82a5b6; --epi:#a8cddd; --life:#123448; --accent:var(--bio-mint); }
+
+.zone__frame {
+  container: frame / inline-size;
+  position: relative; z-index: 3;
+  width: min(100%, 72rem);
+  padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 3.5rem);
+  /* a soft lens of the zone's own water, so type never sits on a seam */
+  background: radial-gradient(115% 85% at 50% 50%,
+              color-mix(in oklab, var(--sea) 78%, transparent) 0%,
+              color-mix(in oklab, var(--sea) 34%, transparent) 46%,
+              transparent 74%);
+}
+.zone__range {
+  display: flex; align-items: center; gap: .75rem;
+  font-family: var(--font-mono); font-size: clamp(.7rem, 1.15vw, .84rem);
+  font-weight: 500; font-variant-numeric: tabular-nums;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--meta);
+}
+.zone__title {
+  margin-top: clamp(.5rem, 1.5vw, 1rem);
+  font-size: clamp(3rem, 10.5vw, 9rem);
+  font-weight: 300; line-height: .9; letter-spacing: -.04em;
+  padding-bottom: .05em;            /* the descender overshoots line-height .9 */
+  -webkit-hyphens: auto; hyphens: auto; overflow-wrap: break-word;
+}
+.zone__tagline {
+  font-family: var(--font-mono); font-size: clamp(.7rem, 1.15vw, .84rem);
+  letter-spacing: .2em; text-transform: uppercase; color: var(--meta);
+}
+.zone__epigraph {
+  margin-top: clamp(1.25rem, 3vw, 2.25rem);
+  max-width: 30ch;
+  font-size: clamp(1.15rem, 2.6vw, 1.8rem);
+  line-height: 1.32; letter-spacing: -.015em;
+  color: var(--epi); text-wrap: balance;
+}
+.zone__copy {
+  margin-top: clamp(1rem, 2.4vw, 1.75rem);
+  max-width: 64ch;
+  font-size: clamp(1rem, 1.35vw, 1.18rem);
+  line-height: 1.68;
+}
+/* Container queries: the frame re-typesets on its OWN inline size, so it would
+   still behave if it were dropped into a narrower column. */
+/* 'Abyssopelagic' at the 3rem clamp floor needs ~277px; a 320px viewport has
+   to give it that much or it breaks mid-word. Measured, not estimated. */
+@media (max-width: 30rem) {
+  .zone__frame { padding-inline: 0; }
+  .zone__title { margin-inline: -.5rem; }
+}
+
+@container frame (min-width: 46rem) {
+  .zone__range::after { content: ''; flex: 1 1 auto; height: 1px; background: currentColor; opacity: .4; }
+  .zone__epigraph { max-width: 24ch; font-size: clamp(1.4rem, 3.2vw, 2.25rem); }
+}
+@container frame (min-width: 62rem) {
+  .zone__copy { max-width: none; column-count: 2; column-gap: clamp(1.75rem, 4vw, 3.5rem); }
+}
+
+/* --- creatures ------------------------------------------------------------ */
+
+.zone__life { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.creature {
+  position: absolute;
+  left: var(--x); top: var(--y); width: var(--w);
+  color: var(--life); opacity: .9;
+}
+.creature svg { display: block; width: 100%; height: auto; fill: currentColor; }
+.creature--glow::before {
+  content: ''; position: absolute; inset: -28%; z-index: -1; border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%,
+              color-mix(in oklab, var(--accent) 22%, transparent) 0%, transparent 66%);
+}
+.esca {
+  fill: var(--accent);
+  filter: drop-shadow(0 0 7px var(--accent)) drop-shadow(0 0 18px var(--accent));
+}
+
+/* --- colophon ------------------------------------------------------------- */
+
+.colophon {
+  position: relative; z-index: 2;
+  min-height: 100vh; min-height: 100svh;
+  display: grid; align-content: center;
+  padding: 0 var(--gutter);
+  overflow: clip;
+  color: #d2e8f2;                                   /* 16.38:1 on #000206 */
+}
+.colophon__inner { width: min(100%, 52rem); }
+.colophon__title {
+  font-size: clamp(2.25rem, 7vw, 4.5rem);
+  font-weight: 300; line-height: .95; letter-spacing: -.03em;
+}
+.colophon__copy {
+  margin-top: 1rem; max-width: 34ch;
+  font-size: clamp(1.05rem, 2.2vw, 1.4rem); color: #a8cddd;
+}
+.colophon__note {
+  margin-top: 1.5rem; max-width: 62ch;
+  font-family: var(--font-mono); font-size: clamp(.72rem, 1.1vw, .82rem);
+  line-height: 1.8; color: #82a5b6;
+}
+
+/* --- depth meter ---------------------------------------------------------- */
+
+.meter {
+  position: fixed; z-index: 80;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  display: grid; gap: .1rem;
+  min-width: 9.5rem; padding: .75rem .9rem .8rem;
+  background: color-mix(in oklab, var(--hud) 82%, transparent);
+  border: 1px solid color-mix(in oklab, var(--hud-ink) 16%, transparent);
+  border-radius: 4px;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  color: var(--hud-ink);
+}
+.meter__zone {
+  font-size: .62rem; font-weight: 500; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--hud-dim);
+}
+.meter__row { display: flex; align-items: baseline; gap: .35rem; line-height: 1.15; }
+.meter__num {
+  min-width: 5ch; text-align: right;
+  font-size: 1.6rem; font-weight: 500;
+  counter-reset: depth var(--depth-n);
+}
+.meter__num::after { content: counter(depth); }
+.meter__num--press {
+  font-size: .95rem; color: var(--hud-dim);
+  counter-reset: press var(--press-n);
+}
+.meter__num--press::after { content: counter(press); }
+/* Once main.js is live it writes real text, so drop the CSS-counter shadow. */
+html.js-active .meter__num::after { content: none; }
+.meter__unit { font-size: .7rem; letter-spacing: .1em; color: var(--hud-dim); }
+.meter__gauge {
+  position: relative; margin-top: .45rem; height: 3px; border-radius: 2px;
+  background: color-mix(in oklab, var(--hud-ink) 14%, transparent);
+}
+.meter__needle {
+  position: absolute; top: -2px;
+  left: clamp(0px, calc(var(--dive) * 100%), calc(100% - 3px));
+  width: 3px; height: 7px; border-radius: 2px; background: var(--bio-mint);
+}
+
+/* ==========================================================================
+   Motion, path 1 of 2 — CSS scroll-driven animations.
+   main.js runs the equivalent when this @supports block does not apply.
+   ========================================================================== */
+
+@keyframes sea-shift {
+  0%,  19%  { --sea-a: #7fd4e8; --sea-b: #5ec0dc; }
+  27%, 37%  { --sea-a: #0d3a52; --sea-b: #092b3f; }
+  45%, 55%  { --sea-a: #061c2c; --sea-b: #04121e; }
+  63%, 73%  { --sea-a: #020a12; --sea-b: #01060c; }
+  81%, 100% { --sea-a: #000206; --sea-b: #000104; }
+}
+/* Sunlight is gone by 1000 m, which is 41% of the scroll. */
+@keyframes shaft-fade { 0% { --shaft: .62; } 20% { --shaft: .3; } 41%, 100% { --shaft: 0; } }
+@keyframes dive-progress { from { --dive: 0; } to { --dive: 1; } }
+@keyframes depth-count {
+  0%, 5% { --depth-n: 0; } 23% { --depth-n: 200; } 41% { --depth-n: 1000; }
+  59% { --depth-n: 4000; } 77% { --depth-n: 6000; } 95%, 100% { --depth-n: 11000; }
+}
+@keyframes press-count {
+  0%, 5% { --press-n: 1; } 23% { --press-n: 21; } 41% { --press-n: 101; }
+  59% { --press-n: 401; } 77% { --press-n: 601; } 95%, 100% { --press-n: 1101; }
+}
+@keyframes frame-pass {
+  0%       { opacity: 0; transform: translateY(3rem); }
+  26%, 70% { opacity: 1; transform: none; }
+  100%     { opacity: 0; transform: translateY(-2.5rem); }
+}
+@keyframes creature-pass {
+  0%       { opacity: 0; transform: translateY(16%); }
+  24%, 76% { opacity: .9; }
+  100%     { opacity: 0; transform: translateY(-16%); }
+}
+@keyframes hero-sink { to { opacity: 0; transform: translateY(-14%); } }
+@keyframes drift {
+  from { transform: translate3d(calc(var(--sway,1) * -3%), -2%, 0) rotate(calc(var(--sway,1) * -2deg)); }
+  to   { transform: translate3d(calc(var(--sway,1) * 4%), 2.5%, 0) rotate(calc(var(--sway,1) * 2.5deg)); }
+}
+@keyframes shaft-sway {
+  from { transform: translateX(-2%) skewX(-1.5deg); }
+  to   { transform: translateX(3%) skewX(2deg); }
+}
+
+@supports (animation-timeline: scroll()) {
+  html   { animation: dive-progress linear both; animation-timeline: scroll(root block); }
+  .sea   { animation: sea-shift     linear both; animation-timeline: scroll(root block); }
+  .shafts{ animation: shaft-fade    linear both; animation-timeline: scroll(root block); }
+  .meter__num        { animation: depth-count linear both; animation-timeline: scroll(root block); }
+  .meter__num--press { animation: press-count linear both; animation-timeline: scroll(root block); }
+  .hero {
+    animation: hero-sink linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0% 16%;
+  }
+  .zone__frame {
+    animation: frame-pass linear both;
+    animation-timeline: view(block);
+    animation-range: cover 0% cover 100%;
+  }
+  .creature {
+    animation: creature-pass linear both;
+    animation-timeline: view(block);
+    animation-range: cover 0% cover 100%;
+  }
+}
+
+/* Time-based drift lives on the inner SVG so it never fights the scroll-driven
+   transform on .creature. `rotate` on the shafts is a separate property, so
+   shaft-sway's transform leaves each shaft's angle alone. */
+.creature svg { animation: drift var(--dur, 50s) ease-in-out var(--delay, 0s) infinite alternate; }
+.shafts i { animation: shaft-sway 18s ease-in-out infinite alternate; }
+.shafts i:nth-child(even) { animation-duration: 25s; animation-delay: -7s; }
+
+/* ==========================================================================
+   Motion, path 2 of 2 — the JS fallback. Armed only when main.js is actually
+   loading AND scroll-driven animation is unsupported, so the page never paints
+   a hidden state it has no way to recover from.
+   ========================================================================== */
+
+html.js-active.no-sdt .zone__frame {
+  opacity: 0; transform: translateY(2.5rem);
+  transition: opacity .8s var(--ease-out), transform .8s var(--ease-out);
+}
+html.js-active.no-sdt .zone__frame.is-in { opacity: 1; transform: none; }
+/* --par is rewritten every frame by the parallax loop, so it is never
+   transitioned; only the reveal (opacity) is. Same for the hero's fade. */
+html.js-active.no-sdt .creature {
+  opacity: 0;
+  transform: translateY(var(--par, 12%));
+  transition: opacity 1s var(--ease-out);
+}
+html.js-active.no-sdt .creature.is-in { opacity: .9; }
+
+/* ==========================================================================
+   Reduced motion — every animation and transition becomes an instant state.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+
+  /* With no scroll timeline the fixed water cannot change colour, so each
+     section carries its own. Same colours, same verified contrast. */
+  .sea, .shafts { display: none; }
+  .hero { background-color: #7fd4e8; }
+  .zone { background-color: var(--sea); }
+  .colophon { background-color: #000206; }
+
+  /* Anything that rested on a keyframe gets its resting state stated outright. */
+  .hero, .zone__frame { opacity: 1 !important; transform: none !important; }
+  .creature { opacity: .9 !important; transform: none !important; }
+  .meter__gauge { display: none; }
+
+  /* With no JS there is nothing to count with, and a frozen readout would
+     simply be wrong. Every zone prints its own depth range regardless. */
+  html:not(.js-active) .meter { display: none; }
+}
