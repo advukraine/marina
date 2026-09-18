@@ -103,6 +103,32 @@ it needs 274px in Fraunces and 258px in the fallback serif, and the 320px
 layout gives it 304px. Below 30rem the frame drops its side padding and the
 display type hangs slightly into the gutter to make that fit.
 
+## On a phone
+
+The two fixed instruments become edge strips rather than floating panels, and
+every section reserves room for both, so neither can sit on the type.
+
+- **Top:** the zone rail turns into a depth scale — `0 · 200 · 1000 · 4000 ·
+  6000` — because a touch screen reports `(hover: none)` and would never fire
+  the hover reveal the desktop rail uses. Without this the nav was five
+  anonymous dots. The full zone name stays clipped-but-present in the
+  accessibility tree, so each link still announces as *"Epipelagic 0–200 m"*.
+- **Bottom:** the depth meter becomes a full-width readout strip with the dive
+  progress as a hairline along its top edge. As a floating panel it covered the
+  last two lines of body copy at 320×568.
+- **Tap targets** are 44×44 minimum. They were 36×27.
+- **`(pointer: coarse)`** drops two of the six light shafts, cuts the shaft
+  blur from 22px to 12px, and removes `backdrop-filter` from both strips in
+  favour of a more opaque background — a mobile GPU should not be asked to
+  blur six full-height gradients behind a translucent panel.
+
+Measured after the change on iPhone SE, iPhone 14 Pro, Pixel 7, a 360×640
+Android and the 320×568 floor: no overlap anywhere, and the text block is
+38–67% of the viewport (it was up to 94%).
+
+The descent is about eleven screens of scrolling on a phone. That is the
+design — five zones at 1.8 screens each — not an oversight.
+
 ## Accessibility
 
 - Landmarks: `header`, labelled `nav`, `main`, `footer`, labelled `aside`.
@@ -136,6 +162,11 @@ Checked in Chromium via Playwright, not by eye alone:
 - No horizontal scrollbar at 320, 360, 414, 768, 1024, 1440, 1920 or 2560px.
 - Cumulative layout shift on load: 0.003.
 - Reduced motion: zero running animations, all text at full opacity.
+- On phone viewports: 44×44 tap targets, no overlap between the strips and the
+  type, and every rail link keeps its accessible name in the a11y tree.
+- Title descenders clear their taglines by 6px at the 3rem clamp floor and
+  21px at full size (Fraunces descends ~0.25em, which `line-height: .9` does
+  not cover).
 
 Two things still want a human eye, because they are judgements rather than
 measurements: how the motion actually *feels* at real scroll speeds, and

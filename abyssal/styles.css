@@ -150,6 +150,7 @@ a:focus-visible { outline: 2px solid var(--bio-mint); outline-offset: 3px; borde
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
 .rail__link {
+  position: relative;
   display: flex; align-items: center; gap: .7rem;
   padding: .3rem .5rem; border-radius: 999px;
   text-decoration: none; color: var(--hud-dim);
@@ -170,13 +171,21 @@ a:focus-visible { outline: 2px solid var(--bio-mint); outline-offset: 3px; borde
   transition: max-width .4s var(--ease-out), opacity .3s var(--ease-out);
 }
 .rail__label b { font-weight: 400; opacity: .62; }
-.rail__link:hover, .rail__link:focus-visible,
-.rail__link[aria-current='true'] { color: var(--hud-ink); }
-.rail__link:hover .rail__dot, .rail__link:focus-visible .rail__dot,
+.rail__short {
+  display: none;                    /* shown on touch, where hover cannot help */
+  font-family: var(--font-mono); font-size: .64rem; font-style: normal;
+  font-variant-numeric: tabular-nums; letter-spacing: .04em;
+}
+.rail__link:focus-visible, .rail__link[aria-current='true'] { color: var(--hud-ink); }
+.rail__link:focus-visible .rail__dot,
 .rail__link[aria-current='true'] .rail__dot { background: currentColor; }
-.rail__link:hover .rail__dot, .rail__link:focus-visible .rail__dot { scale: 1.25; }
-.rail__link:hover .rail__label,
+.rail__link:focus-visible .rail__dot { scale: 1.25; }
 .rail__link:focus-visible .rail__label { max-width: 24ch; opacity: 1; }
+@media (hover: hover) {
+  .rail__link:hover { color: var(--hud-ink); }
+  .rail__link:hover .rail__dot { background: currentColor; scale: 1.25; }
+  .rail__link:hover .rail__label { max-width: 24ch; opacity: 1; }
+}
 @media (min-width: 48rem) {
   .rail { top: 50%; left: max(1rem, env(safe-area-inset-left)); translate: 0 -50%; }
   .rail__list { grid-auto-flow: row; }
@@ -222,7 +231,7 @@ a:focus-visible { outline: 2px solid var(--bio-mint); outline-offset: 3px; borde
   margin-top: clamp(.5rem, 1.5vw, 1rem);
   font-size: clamp(3rem, 10.5vw, 9rem);
   font-weight: 300; line-height: .9; letter-spacing: -.04em;
-  padding-bottom: .05em;            /* the descender overshoots line-height .9 */
+  padding-bottom: .18em;            /* Fraunces descends ~.25em; line-height .9 does not cover it */
   -webkit-hyphens: auto; hyphens: auto; overflow-wrap: break-word;
 }
 .zone__tagline {
@@ -345,6 +354,82 @@ html.js-active .meter__num::after { content: none; }
   position: absolute; top: -2px;
   left: clamp(0px, calc(var(--dive) * 100%), calc(100% - 3px));
   width: 3px; height: 7px; border-radius: 2px; background: var(--bio-mint);
+}
+
+/* ==========================================================================
+   Phone. The two fixed instruments become edge strips — a depth scale along
+   the top, a readout along the bottom — and the sections reserve room for
+   both, so neither can ever sit on the type.
+   ========================================================================== */
+
+@media (max-width: 48rem) {
+  :root { --chrome-top: 2.75rem; --chrome-bottom: 3.25rem; }
+
+  .hero, .zone, .colophon {
+    padding-top: calc(var(--chrome-top) + env(safe-area-inset-top));
+    padding-bottom: calc(var(--chrome-bottom) + env(safe-area-inset-bottom));
+  }
+  /* the frame gives back the vertical padding the strips just took */
+  .zone__frame { padding-block: clamp(.5rem, 2vw, 1.25rem); }
+  .zone__epigraph { margin-top: clamp(.9rem, 3vw, 1.5rem); }
+
+  .rail { top: 0; left: 0; right: 0; translate: none; }
+  .rail__list {
+    justify-content: center;
+    padding: max(.35rem, env(safe-area-inset-top)) .35rem .35rem;
+    border-radius: 0;
+    background: color-mix(in oklab, var(--hud) 78%, transparent);
+  }
+  .rail__link {
+    flex-direction: column; gap: .2rem;
+    min-width: 2.75rem; min-height: 2.75rem;   /* 44px: a real tap target */
+    justify-content: center; padding: .25rem .4rem;
+  }
+  .rail__short { display: block; }
+  /* Clipped, NOT display:none — the visible label is the short depth number,
+     but the full name has to stay in the accessibility tree or the link loses
+     its accessible name entirely. */
+  .rail__label {
+    position: absolute; width: 1px; height: 1px; margin: -1px;
+    max-width: none; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+
+  .meter {
+    right: 0; bottom: 0; left: 0;
+    min-width: 0;
+    display: flex; align-items: baseline; gap: .55rem;
+    padding: .45rem max(1rem, env(safe-area-inset-right))
+             max(.45rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+    border-width: 1px 0 0; border-radius: 0;
+  }
+  .meter__zone { flex: 1 1 auto; }
+  .meter__row { flex: 0 0 auto; }
+  .meter__num { min-width: 4.5ch; font-size: 1.1rem; }
+  .meter__num--press { font-size: .8rem; }
+  .meter__gauge {
+    position: absolute; inset: 0 0 auto 0;
+    margin: 0; height: 2px; border-radius: 0;
+  }
+  .meter__needle { top: 0; height: 2px; }
+}
+
+/* Touch devices wide enough to keep the vertical rail still have no hover, so
+   the depth labels stay visible and the content clears them. */
+@media (min-width: 48rem) and (hover: none) {
+  .rail__short { display: block; }
+  .hero, .zone, .colophon { padding-left: calc(var(--gutter) + 4.5rem); }
+  .rail__link { min-height: 2.75rem; }
+}
+
+/* Coarse pointers are phones and tablets: cheapen the most expensive paint
+   work rather than ask a mobile GPU to blur six full-height gradients. */
+@media (pointer: coarse) {
+  .shafts i { filter: blur(12px); }
+  .shafts i:nth-child(4), .shafts i:nth-child(6) { display: none; }
+  .rail__list, .meter {
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    background: color-mix(in oklab, var(--hud) 94%, transparent);
+  }
 }
 
 /* ==========================================================================
